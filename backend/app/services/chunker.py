@@ -1,19 +1,16 @@
 import re
 from collections import defaultdict
-
-from app.schemas import ScriptLineNormalized
+from typing import Any
 
 
 class Chunker:
-    """Group normalized script lines into scene-based chunks."""
-
     @staticmethod
     def chunk(
-        lines: list[ScriptLineNormalized], project_id: int, source_file_id: int
-    ) -> list[dict]:
+        lines: list[dict[str, str]], project_id: int, source_file_id: int
+    ) -> list[dict[str, Any]]:
         grouped = defaultdict(list)
         for line in lines:
-            hint = line.scene_hint if line.scene_hint else "__no_scene__"
+            hint = line.get("scene_hint") or "未分類"
             grouped[hint].append(line)
 
         chunks = []
@@ -25,7 +22,7 @@ class Chunker:
                     "source_file_id": source_file_id,
                     "chunk_number": idx,
                     "chunk_title": title,
-                    "scene_hint": hint if hint != "__no_scene__" else None,
+                    "scene_hint": hint,
                     "status": "pending",
                     "lines": scene_lines,
                 }
@@ -33,11 +30,12 @@ class Chunker:
         return chunks
 
     @staticmethod
-    def _make_title(hint: str, lines: list[ScriptLineNormalized]) -> str:
-        if hint and hint != "__no_scene__":
+    def _make_title(hint: str, lines: list[dict[str, str]]) -> str:
+        if hint and hint != "未分類":
             words = re.sub(r"[_-]", " ", hint).title()
             return words[:100]
         first = next(
-            (l.source_text_ja[:40] for l in lines if l.source_text_ja.strip()), ""
+            (l.get("source_text_ja", "")[:40] for l in lines if l.get("source_text_ja", "").strip()),
+            "",
         )
         return f"Scene {first}" if first else "Untitled Scene"

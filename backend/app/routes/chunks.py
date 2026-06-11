@@ -51,7 +51,7 @@ async def generate_chunks(
         for sl in source_lines
     ]
     normalized = ScriptNormalizer().normalize(raw)
-    chunks = Chunker().chunk(normalized.lines, req.project_id, req.source_file_id)
+    chunks = Chunker().chunk(normalized["lines"], req.project_id, req.source_file_id)
 
     db_objects = []
     for ch in chunks:

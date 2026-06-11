@@ -1,45 +1,82 @@
 import json
 from typing import Any
 
-from app.schemas import ContextNormalized, ScriptLineNormalized, ScriptNormalized
-
 
 class ScriptNormalizer:
-    """Normalize parsed script data into ScriptNormalized."""
-
     @staticmethod
-    def normalize(raw_lines: list[dict[str, Any]]) -> ScriptNormalized:
-        normalized = ScriptNormalized()
-        for raw in raw_lines:
-            line = ScriptLineNormalized(
-                line_id=str(raw.get("line_id", raw.get("id", ""))),
-                character=str(raw.get("character", raw.get("speaker", ""))),
-                source_text_ja=str(
-                    raw.get("source_text_ja", raw.get("text_ja", raw.get("text", "")))
-                ),
-                scene_hint=str(raw.get("scene_hint", raw.get("scene", ""))),
+    def normalize(raw_lines: list[dict[str, Any]]) -> dict[str, Any]:
+        lines: list[dict[str, str]] = []
+        warnings: list[str] = []
+
+        for idx, raw in enumerate(raw_lines, start=1):
+            source_text_ja = (
+                raw.get("source_text_ja")
+                or raw.get("text_ja")
+                or raw.get("text")
+                or ""
+            ).strip()
+
+            if not source_text_ja:
+                orig = raw.get("line_id") or raw.get("id") or f"row {idx}"
+                warnings.append(f"Skipped line {orig}: source_text_ja is empty")
+                continue
+
+            line_id = str(raw.get("line_id") or raw.get("id") or idx)
+            character = str(raw.get("character") or raw.get("speaker") or "")
+            scene_hint = str(raw.get("scene_hint") or raw.get("scene") or "未分類")
+
+            lines.append(
+                {
+                    "line_id": line_id,
+                    "character": character,
+                    "source_text_ja": source_text_ja,
+                    "scene_hint": scene_hint,
+                }
             )
-            normalized.lines.append(line)
-        return normalized
+
+        return {"lines": lines, "warnings": warnings}
 
 
 class ContextNormalizer:
-    """Normalize parsed context data into ContextNormalized."""
-
     @staticmethod
-    def normalize(data: dict | str) -> ContextNormalized:
+    def normalize(data: dict[str, Any] | str) -> dict[str, Any]:
+        warnings: list[str] = []
+        result: dict[str, Any] = {
+            "project": {},
+            "first_environment": {},
+            "characters": [],
+            "relationships": [],
+            "glossary": [],
+            "style_rules": [],
+            "raw_context": "",
+            "warnings": [],
+        }
+
+        raw: dict[str, Any]
         if isinstance(data, str):
-            return ContextNormalized(raw_context=data)
+            result["raw_context"] = data
+            warnings.append("Context is plain text — no structured sections parsed")
+            result["warnings"] = warnings
+            return result
 
-        result = ContextNormalized()
+        raw = data
+        result["raw_context"] = json.dumps(raw, ensure_ascii=False)
 
-        if isinstance(data, dict):
-            result.project = data.get("project", {})
-            result.first_environment = data.get("first_environment", {})
-            result.characters = data.get("characters", [])
-            result.relationships = data.get("relationships", [])
-            result.glossary = data.get("glossary", [])
-            result.style_rules = data.get("style_rules", [])
-            result.raw_context = data.get("raw_context", json.dumps(data, ensure_ascii=False))
+        section_map = {
+            "project": "project",
+            "first_environment": "first_environment",
+            "characters": "characters",
+            "relationships": "relationships",
+            "glossary": "glossary",
+            "style_rules": "style_rules",
+        }
 
+        for key, section in section_map.items():
+            value = raw.get(key) or raw.get(section)
+            if value is None or value == {} or value == []:
+                warnings.append(f"Missing context section: {section}")
+            else:
+                result[section] = value
+
+        result["warnings"] = warnings
         return result

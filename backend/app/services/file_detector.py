@@ -1,38 +1,25 @@
-import mimetypes
 import os
 
 
-class FileDetector:
-    SUPPORTED_SCRIPT_EXTENSIONS = {
-        ".csv": "csv",
-        ".xlsx": "xlsx",
-        ".txt": "txt",
-        ".json": "json",
-    }
+EXTENSION_MAP = {
+    ".csv": "csv",
+    ".xlsx": "xlsx",
+    ".txt": "txt",
+    ".json": "json",
+    ".yaml": "yaml",
+    ".yml": "yaml",
+    ".docx": "docx",
+}
 
-    SUPPORTED_CONTEXT_EXTENSIONS = {
-        ".json": "json",
-        ".yaml": "yaml",
-        ".yml": "yaml",
-        ".txt": "txt",
-        ".docx": "docx",
-    }
 
-    @staticmethod
-    def detect(filename: str) -> str:
-        ext = os.path.splitext(filename)[1].lower()
-        if ext in FileDetector.SUPPORTED_SCRIPT_EXTENSIONS:
-            return FileDetector.SUPPORTED_SCRIPT_EXTENSIONS[ext]
-        if ext in FileDetector.SUPPORTED_CONTEXT_EXTENSIONS:
-            return FileDetector.SUPPORTED_CONTEXT_EXTENSIONS[ext]
-        raise ValueError(f"Unsupported file extension: {ext}")
+def detect_file_type(filename: str, content_type: str | None = None) -> str:
+    ext = os.path.splitext(filename)[1].lower()
+    return EXTENSION_MAP.get(ext, "unknown")
 
-    @staticmethod
-    def is_script(filename: str) -> bool:
-        ext = os.path.splitext(filename)[1].lower()
-        return ext in FileDetector.SUPPORTED_SCRIPT_EXTENSIONS
 
-    @staticmethod
-    def is_context(filename: str) -> bool:
-        ext = os.path.splitext(filename)[1].lower()
-        return ext in FileDetector.SUPPORTED_CONTEXT_EXTENSIONS
+def is_script_file_type(file_type: str) -> bool:
+    return file_type in ("csv", "xlsx", "txt", "json")
+
+
+def is_context_file_type(file_type: str) -> bool:
+    return file_type in ("json", "yaml", "txt", "docx")

@@ -17,6 +17,7 @@ class ScriptLineNormalized(BaseModel):
 
 class ScriptNormalized(BaseModel):
     lines: list[ScriptLineNormalized] = []
+    warnings: list[str] = []
 
 
 class ContextNormalized(BaseModel):
@@ -27,6 +28,7 @@ class ContextNormalized(BaseModel):
     glossary: list[dict[str, Any]] = Field(default_factory=list)
     style_rules: list[dict[str, Any]] = Field(default_factory=list)
     raw_context: str = ""
+    warnings: list[str] = []
 
 
 # ---------------------------------------------------------------------------
