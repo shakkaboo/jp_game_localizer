@@ -95,46 +95,39 @@ async def translate_chunk(chunk_id: int, db: Session = Depends(get_db)):
     if not translations_raw:
         raise HTTPException(500, "AI returned no translations")
 
-    # Store translations
+    # Delete old translations for this chunk to avoid duplicates on retest
+    db.query(Translation).filter(Translation.chunk_id == chunk_id).delete()
+    db.flush()
+
+    # Build line_id → SourceLine map (string keys)
     line_map: dict[str, SourceLine] = {}
     for sl in source_lines:
-        line_map[sl.line_id or ""] = sl
+        line_map[str(sl.line_id or "")] = sl
+
+    inserted = 0
+    warnings: list[str] = []
 
     for t_raw in translations_raw:
-        lid = t_raw.get("line_id", "")
+        lid = str(t_raw.get("line_id", ""))
         match = line_map.get(lid)
+
         if not match:
+            warnings.append(f"Skipped translation: line_id '{lid}' does not match any source line")
             continue
 
-        existing = (
-            db.query(Translation)
-            .filter(Translation.source_line_id == match.id)
-            .first()
-        )
-
-        literal = t_raw.get("literal_meaning", "")
-        localized = t_raw.get("localized_text_en", "")
-        note = t_raw.get("localization_note", "")
-
-        if existing:
-            existing.literal_meaning = literal
-            existing.localized_text_en = localized
-            existing.final_text_en = localized
-            existing.localization_note = note
-            existing.status = "translated"
-        else:
-            db.add(
-                Translation(
-                    project_id=chunk.project_id,
-                    chunk_id=chunk.id,
-                    source_line_id=match.id,
-                    literal_meaning=literal,
-                    localized_text_en=localized,
-                    final_text_en=localized,
-                    localization_note=note,
-                    status="translated",
-                )
+        db.add(
+            Translation(
+                project_id=chunk.project_id,
+                chunk_id=chunk.id,
+                source_line_id=match.id,
+                literal_meaning=t_raw.get("literal_meaning", ""),
+                localized_text_en=t_raw.get("localized_text_en", ""),
+                final_text_en=t_raw.get("localized_text_en", ""),
+                localization_note=t_raw.get("localization_note", ""),
+                status="draft",
             )
+        )
+        inserted += 1
 
     # Store chunk memory
     chunk_memory = result.get("chunk_memory", {})
@@ -161,8 +154,9 @@ async def translate_chunk(chunk_id: int, db: Session = Depends(get_db)):
     return {
         "chunk_id": chunk.id,
         "status": "translated",
-        "translations_count": len(translations_raw),
+        "translations_count": inserted,
         "chunk_memory": chunk_memory,
+        "warnings": warnings,
     }
 
 

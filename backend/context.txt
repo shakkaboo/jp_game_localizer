@@ -1,0 +1,43 @@
+Project Title: Generic Test RPG
+Genre: Fantasy RPG
+Target Tone: Natural English game dialogue, emotional but not overly dramatic.
+
+First Environment:
+The story begins at the entrance of a quiet village in the morning. The air feels calm, but the characters sense that something unusual is about to happen.
+
+Characters:
+キャラA
+Role: Main character
+Status: Curious but cautious
+Personality: Brave, thoughtful, cares about others
+Speech Style: Simple, direct, warm
+
+キャラB
+Role: Close friend of キャラA
+Status: Worried
+Personality: Protective, emotional, honest
+Speech Style: Casual, expressive, slightly anxious
+
+キャラC
+Role: Village elder
+Status: Serious and mysterious
+Personality: Wise, calm, careful with words
+Speech Style: Formal but understandable
+
+Relationships:
+キャラA and キャラB are close friends who trust each other.
+キャラC knows more about the village mystery but does not reveal everything immediately.
+
+Glossary:
+用語A = Term A
+場所A = Place A
+古い門 = Old Gate
+青い光 = blue light
+
+Style Rules:
+Use natural English, not stiff direct translation.
+Keep the meaning and emotion of the Japanese lines.
+Do not add new story details.
+Keep キャラA brave but not arrogant.
+Keep キャラB worried but not weak.
+Keep キャラC calm and wise.
