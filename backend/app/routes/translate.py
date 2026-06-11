@@ -7,6 +7,7 @@ from app.ai.llm_client import call_llm_json
 from app.ai.prompts import build_chunk_localization_prompt
 from app.database import get_db
 from app.models import Chunk, ContextData, SourceLine, Translation
+from app.services.memory_service import MemoryService
 
 router = APIRouter(prefix="/translate", tags=["translate"])
 
@@ -129,8 +130,25 @@ async def translate_chunk(chunk_id: int, db: Session = Depends(get_db)):
         )
         inserted += 1
 
-    # Store chunk memory
+    # Build translations list for fallback
+    inserted_translations = [
+        {
+            "source_text_ja": t_raw.get("source_text_ja", ""),
+            "localized_text_en": t_raw.get("localized_text_en", ""),
+            "character": t_raw.get("character", ""),
+        }
+        for t_raw in translations_raw
+        if str(t_raw.get("line_id", "")) in line_map
+    ]
+
+    # Validate and ensure complete chunk memory
     chunk_memory = result.get("chunk_memory", {})
+    chunk_memory = MemoryService.ensure_chunk_memory(
+        chunk_memory=chunk_memory,
+        previous_memory=previous_memory,
+        chunk_lines=chunk_lines,
+        translations=inserted_translations,
+    )
     chunk.chunk_memory_json = json.dumps(chunk_memory, ensure_ascii=False)
     chunk.status = "translated"
 
