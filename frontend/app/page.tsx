@@ -3,15 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import FileUploadCard from "@/components/FileUploadCard"
-import {
-  uploadContext,
-  uploadScript,
-  createChunks,
-} from "@/lib/api"
-import type {
-  ContextUploadResponse,
-  ScriptUploadResponse,
-} from "@/types"
+import { uploadContext, uploadScript, createChunks } from "@/lib/api"
+import type { ContextUploadResponse, ScriptUploadResponse } from "@/types"
 
 export default function UploadPage() {
   const router = useRouter()
@@ -31,30 +24,45 @@ export default function UploadPage() {
     try {
       const res = await uploadContext(file)
       setContextResult(res)
+      setScriptResult(null)
+      setChunksCreated(false)
       localStorage.setItem("project_id", String(res.project_id))
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed")
+      setError(e instanceof Error ? e.message : "Context upload failed")
     }
   }
 
   const handleScriptUpload = async (file: File) => {
     setError(null)
+
     if (!projectId) {
-      setError("Upload context first to get a project ID.")
+      setError("Upload a context file first to create a project.")
       return
     }
+
     try {
       const res = await uploadScript(projectId, file)
       setScriptResult(res)
+      setChunksCreated(false)
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed")
+      setError(e instanceof Error ? e.message : "Script upload failed")
     }
   }
 
   const handleCreateChunks = async () => {
-    if (!projectId) return
+    if (!projectId) {
+      setError("Upload a context file first.")
+      return
+    }
+
+    if (!scriptResult) {
+      setError("Upload a script file before creating chunks.")
+      return
+    }
+
     setError(null)
     setCreating(true)
+
     try {
       await createChunks(projectId)
       setChunksCreated(true)
@@ -70,8 +78,10 @@ export default function UploadPage() {
       <h1 className="mb-2 text-3xl font-bold text-zinc-900">
         Game Localization
       </h1>
+
       <p className="mb-10 text-zinc-500">
-        Upload your game context and script to get started.
+        Upload your game context and Japanese script to generate editable English
+        localization.
       </p>
 
       {error && (
@@ -87,6 +97,7 @@ export default function UploadPage() {
           description="Game world, characters, glossary, and style rules."
           onUpload={handleContextUpload}
         />
+
         <FileUploadCard
           title="Script File"
           accept=".csv,.xlsx,.xls,.txt,.json"
@@ -95,25 +106,13 @@ export default function UploadPage() {
         />
       </div>
 
-      {contextResult && !chunksCreated && (
-        <div className="mb-8">
-          <button
-            type="button"
-            onClick={handleCreateChunks}
-            disabled={creating}
-            className="rounded-xl bg-zinc-900 px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
-          >
-            {creating
-              ? "Creating chunks..."
-              : scriptResult
-                ? "Create Scene Chunks & Start Project"
-                : "Upload a script file too, then create chunks"}
-          </button>
-        </div>
-      )}
-
       {contextResult && (
         <SummaryCard title="Context">
+          <p>
+            <span className="text-zinc-500">Project ID:</span>{" "}
+            {contextResult.project_id}
+          </p>
+
           <p>
             <span className="text-zinc-500">Project:</span>{" "}
             {contextResult.project?.title || "Untitled"}
@@ -125,16 +124,30 @@ export default function UploadPage() {
               </>
             )}
           </p>
+
           <p>
             <span className="text-zinc-500">File type:</span>{" "}
             {contextResult.file_type}
           </p>
-          {contextResult.sections.length > 0 && (
-            <p>
-              <span className="text-zinc-500">Sections:</span>{" "}
-              {contextResult.sections.join(", ")}
-            </p>
-          )}
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-4">
+            <MiniStat label="Characters" value={contextResult.characters_count} />
+            <MiniStat
+              label="Relationships"
+              value={contextResult.relationships_count}
+            />
+            <MiniStat label="Glossary" value={contextResult.glossary_count} />
+            <MiniStat label="Style Rules" value={contextResult.style_rules_count} />
+          </div>
+
+          {Array.isArray(contextResult.sections) &&
+            contextResult.sections.length > 0 && (
+              <p className="mt-3">
+                <span className="text-zinc-500">Sections:</span>{" "}
+                {contextResult.sections.join(", ")}
+              </p>
+            )}
+
           {contextResult.warnings.length > 0 && (
             <Warnings warnings={contextResult.warnings} />
           )}
@@ -144,25 +157,55 @@ export default function UploadPage() {
       {scriptResult && (
         <SummaryCard title="Script">
           <p>
+            <span className="text-zinc-500">Source File ID:</span>{" "}
+            {scriptResult.source_file_id}
+          </p>
+
+          <p>
+            <span className="text-zinc-500">File type:</span>{" "}
+            {scriptResult.file_type}
+          </p>
+
+          <p>
             <span className="text-zinc-500">Lines:</span>{" "}
             {scriptResult.total_lines}
           </p>
+
           {scriptResult.detected_characters.length > 0 && (
             <p>
               <span className="text-zinc-500">Characters:</span>{" "}
               {scriptResult.detected_characters.join(", ")}
             </p>
           )}
+
           {scriptResult.detected_scene_hints.length > 0 && (
             <p>
               <span className="text-zinc-500">Scenes:</span>{" "}
               {scriptResult.detected_scene_hints.join(", ")}
             </p>
           )}
+
           {scriptResult.warnings.length > 0 && (
             <Warnings warnings={scriptResult.warnings} />
           )}
         </SummaryCard>
+      )}
+
+      {contextResult && !chunksCreated && (
+        <div className="mb-8">
+          <button
+            type="button"
+            onClick={handleCreateChunks}
+            disabled={creating || !scriptResult}
+            className="rounded-xl bg-zinc-900 px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {creating
+              ? "Creating chunks..."
+              : scriptResult
+                ? "Create Scene Chunks & Start Project"
+                : "Upload a script file too, then create chunks"}
+          </button>
+        </div>
       )}
 
       {chunksCreated && (
@@ -170,9 +213,11 @@ export default function UploadPage() {
           <p className="mb-1 text-lg font-semibold text-green-800">
             Project ready!
           </p>
+
           <p className="mb-4 text-sm text-green-600">
             Scene chunks have been created from your script.
           </p>
+
           <button
             type="button"
             onClick={() => router.push("/progress")}
@@ -206,16 +251,29 @@ function SummaryCard({
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-400">
         {title}
       </h2>
+
       <div className="space-y-1 text-sm text-zinc-700">{children}</div>
     </div>
   )
 }
 
-function Warnings({ warnings }: { warnings: string[] }) {
+function MiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
-      {warnings.map((w, i) => (
-        <p key={i}>{w}</p>
+    <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2">
+      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="text-base font-semibold text-zinc-900">{value}</p>
+    </div>
+  )
+}
+
+function Warnings({ warnings }: { warnings: string[] }) {
+  if (!warnings.length) return null
+
+  return (
+    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+      <p className="mb-1 font-semibold">Warnings</p>
+      {warnings.map((warning, index) => (
+        <p key={index}>{warning}</p>
       ))}
     </div>
   )

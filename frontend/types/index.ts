@@ -2,12 +2,16 @@ export interface ContextUploadResponse {
   project_id: number
   file_type: string
   project: {
-    title: string
+    title?: string
     genre?: string
     target_tone?: string
-  } | null
-  sections: string[]
+  } | Record<string, unknown>
+  characters_count: number
+  relationships_count: number
+  glossary_count: number
+  style_rules_count: number
   warnings: string[]
+  sections?: string[]
 }
 
 export interface ScriptUploadResponse {
@@ -21,20 +25,22 @@ export interface ScriptUploadResponse {
 }
 
 export interface ChunkCreateResponse {
+  message?: string
   project_id: number
   chunks: ChunkItem[]
 }
 
 export interface ChunkItem {
   id: number
-  project_id: number
+  project_id?: number
   source_file_id: number
   chunk_number: number
   chunk_title: string
   scene_hint: string
   status: string
   lines_count?: number
-  previous_memory?: string | null
+  previous_memory_json?: Record<string, unknown> | string | null
+  chunk_memory_json?: Record<string, unknown> | string | null
 }
 
 export interface ChunkDetail {
@@ -45,18 +51,21 @@ export interface ChunkDetail {
   chunk_title: string
   scene_hint: string
   status: string
-  previous_memory_json: string | null
-  chunk_memory_json: string | null
+  previous_memory_json: Record<string, unknown> | string | null
+  chunk_memory_json: Record<string, unknown> | string | null
   source_lines: SourceLine[]
   translations: TranslationDetail[]
 }
 
 export interface SourceLine {
   id: number
+  project_id?: number
+  source_file_id?: number
   line_id: string
   character: string
   source_text_ja: string
   scene_hint: string | null
+  chunk_id?: number
 }
 
 export interface TranslationDetail {
@@ -91,5 +100,5 @@ export interface ExportItem {
 }
 
 export interface ApiError {
-  detail: string
+  detail: string | { msg?: string; type?: string; loc?: unknown[] }[]
 }
