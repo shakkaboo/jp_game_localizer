@@ -1,0 +1,69 @@
+project:
+  title: "Echoes of the Forest"
+  genre: Fantasy RPG
+  target_tone: Natural English game dialogue, emotional but not overly dramatic.
+
+first_environment:
+  name: "Riverside Village"
+  description: "A small, peaceful village surrounded by dense forest. The river runs through the center. Mostly farmers and traders."
+  lighting: "Bright daylight, late afternoon"
+  atmosphere: "Calm and welcoming"
+
+characters:
+  - name: Kazuki
+    role: protagonist
+    age: 18
+    personality: "Curious, kind-hearted, slightly impulsive"
+    speaks_like: "Informal, uses casual Japanese"
+
+  - name: Yuki
+    role: childhood_friend
+    age: 18
+    personality: "Calm, observant, protective"
+    speaks_like: "Polite but warm, uses soft tone"
+
+  - name: Sage Takeno
+    role: mentor
+    age: 70
+    personality: "Wise, mysterious, occasionally playful"
+    speaks_like: "Formal but warm, uses archaic Japanese"
+
+relationships:
+  - character_1: Kazuki
+    character_2: Yuki
+    relationship: "Childhood friends, grew up together in the village"
+    dynamic: "Teasing but caring"
+
+  - character_1: Kazuki
+    character_2: Sage Takeno
+    relationship: "Student and mentor"
+    dynamic: "Respectful and eager"
+
+  - character_1: Yuki
+    character_2: Sage Takeno
+    relationship: "Acquaintance"
+    dynamic: "Polite distance"
+
+glossary:
+  - ja: "結界"
+    en: "barrier / seal"
+    notes: "Magical barrier. Keep as 'barrier' throughout."
+
+  - ja: "精霊"
+    en: "spirit"
+    notes: "Nature spirit. Not 'ghost' or 'soul'."
+
+  - ja: "祠"
+    en: "shrine"
+    notes: "Small roadside shrine."
+
+  - ja: "奥の院"
+    en: "inner sanctuary"
+    notes: "The deepest part of the shrine/temple."
+
+style_rules:
+  - rule: "Keep archaic Japanese speech for Sage Takeno → use mild archaic English (thee/thou is too much, but 'indeed', 'pray tell' are OK)"
+  - rule: "Kazuki uses contractions (don't, can't, I'm) to sound youthful"
+  - rule: "Yuki speaks politely but naturally — no contractions overuse, but not stiff"
+  - rule: "Do not localize proper names"
+  - rule: "Keep placeholders like {player_name} as-is"
