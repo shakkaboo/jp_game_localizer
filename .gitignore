@@ -1,3 +1,23 @@
 backend/.env
 frontend/.env.local
 backend/localizer.db
+
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Env
+backend/.env
+frontend/.env.local
+.env
+.env.local
+
+# Database
+backend/localizer.db
+*.db
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
