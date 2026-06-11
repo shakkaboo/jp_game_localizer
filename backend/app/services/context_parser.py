@@ -34,8 +34,9 @@ class ContextParser:
         return json.loads(content.decode("utf-8-sig"))
 
     @staticmethod
-    def _parse_yaml(content: bytes) -> dict:
-        return yaml.safe_load(content.decode("utf-8-sig"))
+    def _parse_yaml(content: bytes) -> dict | str:
+        result = yaml.safe_load(content.decode("utf-8-sig"))
+        return result if result is not None else {}
 
     @staticmethod
     def _parse_txt(content: bytes) -> str:

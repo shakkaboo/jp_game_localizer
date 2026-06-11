@@ -1,3 +1,4 @@
+import json
 import os
 
 from dotenv import load_dotenv
@@ -63,9 +64,9 @@ app.include_router(export_router)
 # Project CRUD (minimal)
 # ---------------------------------------------------------------------------
 from app.database import get_db
-from app.schemas import ProjectCreate, ProjectRead
-from app.models import Project as ProjectModel
-from fastapi import Depends
+from app.schemas import ProjectContextRead, ProjectCreate, ProjectRead
+from app.models import ContextData, Project as ProjectModel
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 
@@ -87,6 +88,46 @@ def list_projects(db: Session = Depends(get_db)):
 def get_project(project_id: int, db: Session = Depends(get_db)):
     project = db.query(ProjectModel).filter(ProjectModel.id == project_id).first()
     if not project:
-        from fastapi import HTTPException
         raise HTTPException(404, "Project not found")
     return project
+
+
+@app.get("/projects/{project_id}/context", response_model=ProjectContextRead)
+def get_project_context(project_id: int, db: Session = Depends(get_db)):
+    project = db.query(ProjectModel).filter(ProjectModel.id == project_id).first()
+    if not project:
+        raise HTTPException(404, "Project not found")
+
+    ctx = (
+        db.query(ContextData)
+        .filter(ContextData.project_id == project_id)
+        .order_by(ContextData.id.desc())
+        .first()
+    )
+
+    normalized: dict = {}
+    warnings: list[str] = []
+    if ctx and ctx.context_json:
+        try:
+            normalized = json.loads(ctx.context_json)
+        except json.JSONDecodeError:
+            warnings.append("Stored context JSON is malformed")
+        warnings.extend(normalized.get("warnings", []))
+
+    return ProjectContextRead(
+        project_id=project.id,
+        title=project.title or "",
+        genre=project.genre or "",
+        target_tone=project.target_tone or "",
+        context_id=ctx.id if ctx else 0,
+        original_filename=ctx.original_filename if ctx else "",
+        file_type=ctx.file_type if ctx else "",
+        project_data=normalized.get("project", {}),
+        characters=normalized.get("characters", []),
+        relationships=normalized.get("relationships", []),
+        glossary=normalized.get("glossary", []),
+        style_rules=normalized.get("style_rules", []),
+        first_environment=normalized.get("first_environment", {}),
+        raw_context_text=ctx.raw_context_text if ctx else "",
+        warnings=warnings,
+    )

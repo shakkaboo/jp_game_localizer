@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Any, Optional
 
@@ -61,6 +62,17 @@ class UploadResponse(BaseModel):
     message: str
 
 
+class ContextUploadResponse(BaseModel):
+    project_id: int
+    file_type: str
+    project: dict[str, Any] = Field(default_factory=dict)
+    characters_count: int = 0
+    relationships_count: int = 0
+    glossary_count: int = 0
+    style_rules_count: int = 0
+    warnings: list[str] = []
+
+
 # ---------------------------------------------------------------------------
 # Context
 # ---------------------------------------------------------------------------
@@ -72,6 +84,27 @@ class ContextDataRead(BaseModel):
     file_type: str
     context_json: Optional[str] = None
     raw_context_text: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectContextRead(BaseModel):
+    project_id: int
+    title: str
+    genre: str
+    target_tone: str
+    context_id: int
+    original_filename: str
+    file_type: str
+    project_data: dict[str, Any] = Field(default_factory=dict)
+    characters: list[dict[str, Any]] = Field(default_factory=list)
+    relationships: list[dict[str, Any]] = Field(default_factory=list)
+    glossary: list[dict[str, Any]] = Field(default_factory=list)
+    style_rules: list[dict[str, Any]] = Field(default_factory=list)
+    first_environment: dict[str, Any] = Field(default_factory=dict)
+    raw_context_text: str = ""
+    warnings: list[str] = []
 
     class Config:
         from_attributes = True
