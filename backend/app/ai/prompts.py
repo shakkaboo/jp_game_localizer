@@ -1,54 +1,106 @@
-"""Prompt templates for AI localization.
+import json
+from typing import Any
 
-No game-specific content is hardcoded here. All context is injected at
-runtime from the uploaded context file.
-"""
 
-SYSTEM_PROMPT_TEMPLATE = """You are a professional game localizer specializing in Japanese-to-English translation.
+def build_chunk_localization_prompt(
+    project_context: dict[str, Any],
+    characters: list[dict[str, Any]],
+    relationships: list[dict[str, Any]],
+    glossary: list[dict[str, Any]],
+    style_rules: list[dict[str, Any]],
+    raw_context: str,
+    previous_memory: dict[str, Any] | None,
+    chunk_lines: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    sections: list[str] = []
 
-## Game Context
+    # Project
+    proj_name = project_context.get("title") or "Unknown Project"
+    proj_genre = project_context.get("genre") or ""
+    proj_tone = project_context.get("target_tone") or ""
+    proj_line = f"Game: {proj_name}"
+    if proj_genre:
+        proj_line += f" | Genre: {proj_genre}"
+    if proj_tone:
+        proj_line += f" | Target tone: {proj_tone}"
+    sections.append(proj_line)
 
-{game_context}
+    # Raw context
+    if raw_context:
+        sections.append(f"\n## Raw Context\n{raw_context[:3000]}")
 
-## Character Profiles
+    # Characters
+    if characters:
+        char_block = "\n".join(
+            json.dumps(c, ensure_ascii=False) for c in characters
+        )
+        sections.append(f"\n## Character Profiles\n{char_block}")
 
-{character_profiles}
+    # Relationships
+    if relationships:
+        rel_block = "\n".join(
+            json.dumps(r, ensure_ascii=False) for r in relationships
+        )
+        sections.append(f"\n## Relationships\n{rel_block}")
 
-## Glossary
+    # Glossary
+    if glossary:
+        gloss_block = "\n".join(
+            json.dumps(g, ensure_ascii=False) for g in glossary
+        )
+        sections.append(f"\n## Glossary\n{gloss_block}")
 
-{glossary}
+    # Style rules
+    if style_rules:
+        style_block = "\n".join(
+            json.dumps(s, ensure_ascii=False) for s in style_rules
+        )
+        sections.append(f"\n## Style Rules\n{style_block}")
 
-## Style Rules
+    # Previous memory
+    if previous_memory:
+        sections.append(
+            f"\n## Previous Scene Memory\n{json.dumps(previous_memory, ensure_ascii=False, indent=2)}"
+        )
 
-{style_rules}
-"""
+    # Current chunk lines
+    lines_block = "\n".join(
+        f"  [{l.get('line_id', '')}] {l.get('character', '')}: {l.get('source_text_ja', '')}"
+        for l in chunk_lines
+    )
+    sections.append(f"\n## Current Chunk Lines\n{lines_block}")
 
-CHUNK_PROMPT_TEMPLATE = """Translate the following Japanese game dialogue chunk into natural English.
+    system_prompt = (
+        "You are a professional Japanese-to-English game localizer. "
+        "Your goal is not direct translation — it is natural English localization "
+        "for game scripts. "
+        "Preserve the original meaning, emotion, character voice, relationship dynamics, "
+        "environment continuity, glossary consistency, story continuity, and natural English dialogue. "
+        "Preserve placeholders exactly as-is (e.g. {player}, {item}, %s, %d, \\n, <color>). "
+        "Do not add new story information. "
+        "Do not remove important meaning. "
+        "Avoid stiff translationese. "
+        "Avoid overly archaic English unless the uploaded style rules explicitly request it. "
+        "Follow glossary terms exactly. "
+        "Keep each character's English voice consistent with their uploaded profile. "
+        "Use previous scene memory to maintain continuity. "
+        "If context is only raw text, infer carefully from it without inventing details. "
+        "Return valid JSON only, with no additional text before or after."
+    )
 
-## Scene Memory
+    user_prompt = (
+        f"Localize the following game chunk into natural English.\n\n"
+        + "\n".join(sections)
+        + "\n\n"
+        + "Return a JSON object with exactly two keys:\n"
+        + '"translations": an array of objects with keys '
+        + "line_id, character, source_text_ja, literal_meaning, localized_text_en, localization_note\n"
+        + '"chunk_memory": an object with keys '
+        + "chunk_summary, updated_environment, character_states (dict), "
+        + "relationship_updates (list), tone_to_continue, important_terms (dict), unresolved_hooks (list)"
+    )
 
-{scene_memory}
-
-## Lines to translate
-
-{script_lines}
-
-Return your translations as a JSON array of objects with keys:
-- "line_id": the original line id
-- "final_text_en": the natural English translation
-- "localization_note": brief note explaining any key decisions
-"""
-
-MEMORY_PROMPT_TEMPLATE = """Given the following scene and its translations, generate scene memory:
-
-{scene_content}
-
-Return a JSON object with:
-- "chunk_summary": brief summary of what happened
-- "updated_environment": current location/atmosphere details
-- "character_emotional_states": dict of character -> emotional state
-- "relationship_updates": list of relationship changes
-- "tone_to_continue": what tone/style to maintain
-- "important_terms": list of important terms introduced
-- "unresolved_hooks": list of unresolved plot/character hooks
-"""
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
