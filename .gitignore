@@ -1,23 +1,29 @@
-backend/.env
-frontend/.env.local
-backend/localizer.db
-
 # Python
 backend/venv/
+venv/
 __pycache__/
 *.pyc
 
-# Env
-backend/.env
-frontend/.env.local
+# Environment files
 .env
 .env.local
+backend/.env
+frontend/.env.local
 
-# Database
-backend/localizer.db
+# SQLite / local DB
 *.db
+*.sqlite
+*.sqlite3
+backend/localizer.db
 
-# Node
+# Node / Next.js
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+node_modules/
+.next/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
