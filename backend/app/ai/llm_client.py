@@ -19,29 +19,26 @@ def get_llm_settings() -> dict[str, Any]:
     }
 
 
-def call_llm_json(messages: list[dict[str, str]]) -> dict[str, Any]:
+def _attempt(
+    messages: list[dict[str, str]], use_json_format: bool
+) -> dict[str, Any]:
     settings = get_llm_settings()
 
-    if not settings["has_api_key"]:
-        raise ValueError(
-            "OPENAI_API_KEY is not set. "
-            "Set it in your .env file or environment."
-        )
+    kwargs: dict[str, Any] = {
+        "model": settings["model"],
+        "messages": messages,
+        "temperature": 0.3,
+        "max_tokens": 4096,
+    }
+    if use_json_format:
+        kwargs["response_format"] = {"type": "json_object"}
 
     client = OpenAI(
         api_key=os.getenv("OPENAI_API_KEY"),
         base_url=settings["base_url"],
     )
 
-    try:
-        response = client.chat.completions.create(
-            model=settings["model"],
-            messages=messages,
-            response_format={"type": "json_object"},
-            temperature=0.3,
-        )
-    except Exception as e:
-        raise RuntimeError(f"OpenAI API call failed: {e}") from e
+    response = client.chat.completions.create(**kwargs)
 
     choice = response.choices[0]
     content = choice.message.content
@@ -58,3 +55,34 @@ def call_llm_json(messages: list[dict[str, str]]) -> dict[str, Any]:
         raise ValueError(
             f"OpenAI returned invalid JSON. Raw output:\n{content}"
         ) from e
+
+
+def call_llm_json(messages: list[dict[str, str]]) -> dict[str, Any]:
+    settings = get_llm_settings()
+
+    if not settings["has_api_key"]:
+        raise ValueError(
+            "OPENAI_API_KEY is not set. "
+            "Set it in your .env file or environment."
+        )
+
+    try:
+        return _attempt(messages, use_json_format=True)
+    except Exception as first_err:
+        err_msg = str(first_err).lower()
+        is_json_failure = (
+            "json" in err_msg
+            or "max tokens" in err_msg
+            or "max completion tokens" in err_msg
+            or "finish reason" in err_msg
+            or "invalid" in err_msg
+        )
+        if not is_json_failure:
+            raise RuntimeError(f"OpenAI API call failed: {first_err}") from first_err
+
+        try:
+            return _attempt(messages, use_json_format=False)
+        except Exception as retry_err:
+            raise RuntimeError(
+                f"OpenAI retry also failed (original: {first_err}, retry: {retry_err})"
+            ) from retry_err

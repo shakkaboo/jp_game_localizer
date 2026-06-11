@@ -14,7 +14,6 @@ def build_chunk_localization_prompt(
 ) -> list[dict[str, str]]:
     sections: list[str] = []
 
-    # Project
     proj_name = project_context.get("title") or "Unknown Project"
     proj_genre = project_context.get("genre") or ""
     proj_tone = project_context.get("target_tone") or ""
@@ -25,45 +24,38 @@ def build_chunk_localization_prompt(
         proj_line += f" | Target tone: {proj_tone}"
     sections.append(proj_line)
 
-    # Raw context
     if raw_context:
         sections.append(f"\n## Raw Context\n{raw_context[:3000]}")
 
-    # Characters
     if characters:
         char_block = "\n".join(
             json.dumps(c, ensure_ascii=False) for c in characters
         )
         sections.append(f"\n## Character Profiles\n{char_block}")
 
-    # Relationships
     if relationships:
         rel_block = "\n".join(
             json.dumps(r, ensure_ascii=False) for r in relationships
         )
         sections.append(f"\n## Relationships\n{rel_block}")
 
-    # Glossary
     if glossary:
         gloss_block = "\n".join(
             json.dumps(g, ensure_ascii=False) for g in glossary
         )
         sections.append(f"\n## Glossary\n{gloss_block}")
 
-    # Style rules
     if style_rules:
         style_block = "\n".join(
             json.dumps(s, ensure_ascii=False) for s in style_rules
         )
         sections.append(f"\n## Style Rules\n{style_block}")
 
-    # Previous memory
     if previous_memory:
         sections.append(
             f"\n## Previous Scene Memory\n{json.dumps(previous_memory, ensure_ascii=False, indent=2)}"
         )
 
-    # Current chunk lines
     lines_block = "\n".join(
         f"  [{l.get('line_id', '')}] {l.get('character', '')}: {l.get('source_text_ja', '')}"
         for l in chunk_lines
@@ -72,32 +64,32 @@ def build_chunk_localization_prompt(
 
     system_prompt = (
         "You are a professional Japanese-to-English game localizer. "
-        "Your goal is not direct translation — it is natural English localization "
-        "for game scripts. "
-        "Preserve the original meaning, emotion, character voice, relationship dynamics, "
-        "environment continuity, glossary consistency, story continuity, and natural English dialogue. "
+        "Your goal is natural English localization for game scripts, not direct translation. "
+        "Preserve meaning, emotion, character voice, relationship dynamics, "
+        "environment continuity, glossary consistency, and story continuity. "
         "Preserve placeholders exactly as-is (e.g. {player}, {item}, %s, %d, \\n, <color>). "
-        "Do not add new story information. "
-        "Do not remove important meaning. "
-        "Avoid stiff translationese. "
-        "Avoid overly archaic English unless the uploaded style rules explicitly request it. "
-        "Follow glossary terms exactly. "
-        "Keep each character's English voice consistent with their uploaded profile. "
-        "Use previous scene memory to maintain continuity. "
-        "If context is only raw text, infer carefully from it without inventing details. "
-        "Return valid JSON only, with no additional text before or after."
+        "Do not add new story information. Keep it concise. "
+        "Return only the required JSON object — no extra text, no explanations."
     )
 
     user_prompt = (
-        f"Localize the following game chunk into natural English.\n\n"
+        f"Localize these game lines into natural English.\n\n"
         + "\n".join(sections)
         + "\n\n"
-        + "Return a JSON object with exactly two keys:\n"
-        + '"translations": an array of objects with keys '
-        + "line_id, character, source_text_ja, literal_meaning, localized_text_en, localization_note\n"
-        + '"chunk_memory": an object with keys '
-        + "chunk_summary, updated_environment, character_states (dict), "
-        + "relationship_updates (list), tone_to_continue, important_terms (dict), unresolved_hooks (list)"
+        + "Return compact JSON with exactly two keys:\n"
+        + '"translations": array, each object has '
+        + "line_id, character, source_text_ja, "
+        + "literal_meaning (short), "
+        + "localized_text_en, "
+        + "localization_note (short, omit if empty).\n"
+        + '"chunk_memory": object with '
+        + "chunk_summary (1 sentence), "
+        + "updated_environment (1 phrase), "
+        + "character_states (dict, 1-2 words per character), "
+        + "relationship_updates (list of brief notes), "
+        + "tone_to_continue (short), "
+        + "important_terms (dict of term: translation), "
+        + "unresolved_hooks (list of short hooks)."
     )
 
     return [
