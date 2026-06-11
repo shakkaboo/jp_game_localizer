@@ -1,0 +1,7 @@
+line_id,character,source_text_ja,localized_text_en,final_text_en,chunk_number,chunk_title,status
+1,Hero,おはよう。今日は村の空気が少し変だね。,,,1,village,pending
+2,Hero,昨日の夜、古い門の近くで青い光を見たんだ。,,,1,village,pending
+3,Sage,その光を見たのなら、もう門は眠っていない。,,,1,village,pending
+4,Hero,どういう意味ですか？,,,2,temple,pending
+5,Sage,古い門は、人の迷いを映す場所だ。,,,2,temple,pending
+6,Hero,迷いがあっても、僕は進みます。,,,2,temple,pending

@@ -1,0 +1,7 @@
+line_id,character,source_text_ja,localized_text_en,final_text_en,chunk_number,chunk_title,status
+1,Hero,おはよう。今日は村の空気が少し変だね。,"Hey, something feels off in the village today.","Hey, something feels off in the village today.",1,village,draft
+2,Hero,昨日の夜、古い門の近くで青い光を見たんだ。,I saw a blue light near the Old Gate last night.,I saw a blue light near the Old Gate last night.,1,village,draft
+3,Sage,その光を見たのなら、もう門は眠っていない。,"If you saw that light, the Old Gate is no longer dormant.","If you saw that light, the Old Gate is no longer dormant.",1,village,draft
+4,Hero,どういう意味ですか？,What's it mean?,What's it mean?,2,temple,draft
+5,Sage,古い門は、人の迷いを映す場所だ。,The Old Gate reflects people's confusion.,The Old Gate reflects people's confusion.,2,temple,draft
+6,Hero,迷いがあっても、僕は進みます。,I'll keep moving even with confusion.,I'll keep moving even with confusion.,2,temple,draft

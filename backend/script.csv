@@ -1,0 +1,7 @@
+line_id,character,source_text_ja,scene_hint
+1,Hero,おはよう。今日は村の空気が少し変だね。,village
+2,Hero,昨日の夜、古い門の近くで青い光を見たんだ。,village
+3,Sage,その光を見たのなら、もう門は眠っていない。,village
+4,Hero,どういう意味ですか？,temple
+5,Sage,古い門は、人の迷いを映す場所だ。,temple
+6,Hero,迷いがあっても、僕は進みます。,temple

@@ -1,0 +1,33 @@
+project:
+  title: Rolling Memory Test RPG
+  genre: Fantasy RPG
+  target_tone: Natural English game dialogue
+
+first_environment:
+  location: Quiet village entrance
+  time: Morning
+  mood: Calm but uneasy
+
+characters:
+  - name: Hero
+    role: protagonist
+    personality: brave and thoughtful
+    speech_style: simple and warm
+  - name: Sage
+    role: village elder
+    personality: calm and mysterious
+    speech_style: formal but clear
+
+relationships:
+  - characters: [Hero, Sage]
+    relationship: Sage knows more than they reveal to Hero
+
+glossary:
+  - ja: 古い門
+    en: Old Gate
+  - ja: 青い光
+    en: blue light
+
+style_rules:
+  - Use natural English dialogue.
+  - Do not add new story details.

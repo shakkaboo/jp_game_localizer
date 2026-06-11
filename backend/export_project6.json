@@ -1,0 +1,62 @@
+[
+  {
+    "line_id": "1",
+    "character": "Hero",
+    "source_text_ja": "おはよう。今日は村の空気が少し変だね。",
+    "localized_text_en": "Hey, something feels off in the village today.",
+    "final_text_en": "Hey, something feels off in the village today.",
+    "chunk_number": 1,
+    "chunk_title": "village",
+    "status": "draft"
+  },
+  {
+    "line_id": "2",
+    "character": "Hero",
+    "source_text_ja": "昨日の夜、古い門の近くで青い光を見たんだ。",
+    "localized_text_en": "I saw a blue light near the Old Gate last night.",
+    "final_text_en": "I saw a blue light near the Old Gate last night.",
+    "chunk_number": 1,
+    "chunk_title": "village",
+    "status": "draft"
+  },
+  {
+    "line_id": "3",
+    "character": "Sage",
+    "source_text_ja": "その光を見たのなら、もう門は眠っていない。",
+    "localized_text_en": "If you saw that light, the Old Gate is no longer dormant.",
+    "final_text_en": "If you saw that light, the Old Gate is no longer dormant.",
+    "chunk_number": 1,
+    "chunk_title": "village",
+    "status": "draft"
+  },
+  {
+    "line_id": "4",
+    "character": "Hero",
+    "source_text_ja": "どういう意味ですか？",
+    "localized_text_en": "What's it mean?",
+    "final_text_en": "What's it mean?",
+    "chunk_number": 2,
+    "chunk_title": "temple",
+    "status": "draft"
+  },
+  {
+    "line_id": "5",
+    "character": "Sage",
+    "source_text_ja": "古い門は、人の迷いを映す場所だ。",
+    "localized_text_en": "The Old Gate reflects people's confusion.",
+    "final_text_en": "The Old Gate reflects people's confusion.",
+    "chunk_number": 2,
+    "chunk_title": "temple",
+    "status": "draft"
+  },
+  {
+    "line_id": "6",
+    "character": "Hero",
+    "source_text_ja": "迷いがあっても、僕は進みます。",
+    "localized_text_en": "I'll keep moving even with confusion.",
+    "final_text_en": "I'll keep moving even with confusion.",
+    "chunk_number": 2,
+    "chunk_title": "temple",
+    "status": "draft"
+  }
+]
