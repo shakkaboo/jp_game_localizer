@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import ContextData, Project, SourceFile, SourceLine
-from app.schemas import ContextUploadResponse, ProjectContextRead, UploadResponse
+from app.schemas import (
+    ContextUploadResponse,
+    ScriptUploadResponse,
+    UploadResponse,
+)
 from app.services.context_parser import ContextParser
 from app.services.file_detector import detect_file_type, is_context_file_type, is_script_file_type
 from app.services.normalizer import ContextNormalizer, ScriptNormalizer
@@ -28,7 +32,6 @@ async def upload_context(
     if file_type == "unknown" or not is_context_file_type(file_type):
         raise HTTPException(400, f"Unsupported context file type: {filename}")
 
-    # Resolve or create project
     project: Project | None = None
     if project_id:
         project = db.query(Project).filter(Project.id == project_id).first()
@@ -38,7 +41,6 @@ async def upload_context(
         db.add(project)
         db.flush()
 
-    # Parse
     try:
         raw = ContextParser().parse(content, filename)
     except Exception as e:
@@ -49,18 +51,15 @@ async def upload_context(
     if not isinstance(raw, (dict, str)):
         raw = str(raw)
 
-    # Normalize
     normalized = ContextNormalizer().normalize(raw)
     warnings = normalized["warnings"]
 
-    # Derive project fields
     proj_data = normalized.get("project") or {}
     project.title = proj_data.get("title") or os.path.splitext(filename)[0]
     project.genre = proj_data.get("genre", "")
     project.target_tone = proj_data.get("target_tone", "")
     db.flush()
 
-    # Store context row
     context_data = ContextData(
         project_id=project.id,
         original_filename=filename,
@@ -84,7 +83,7 @@ async def upload_context(
     )
 
 
-@router.post("/script", response_model=UploadResponse)
+@router.post("/script/{project_id}")
 async def upload_script(
     project_id: int,
     file: UploadFile = File(...),
@@ -101,7 +100,11 @@ async def upload_script(
     if file_type == "unknown" or not is_script_file_type(file_type):
         raise HTTPException(400, f"Unsupported script file type: {filename}")
 
-    raw_lines = ScriptParser().parse(content, filename)
+    try:
+        raw_lines = ScriptParser().parse(content, filename)
+    except Exception as e:
+        raise HTTPException(422, f"Failed to parse script file: {e}")
+
     normalized = ScriptNormalizer().normalize(raw_lines)
 
     source_file = SourceFile(
@@ -128,10 +131,12 @@ async def upload_script(
     db.commit()
     db.refresh(source_file)
 
-    return UploadResponse(
+    return ScriptUploadResponse(
         project_id=project_id,
-        file_id=source_file.id,
-        filename=filename,
+        source_file_id=source_file.id,
         file_type=file_type,
-        message=f"Script file uploaded with {len(normalized['lines'])} lines",
+        total_lines=len(normalized["lines"]),
+        detected_characters=normalized.get("detected_characters", []),
+        detected_scene_hints=normalized.get("detected_scene_hints", []),
+        warnings=normalized.get("warnings", []),
     )

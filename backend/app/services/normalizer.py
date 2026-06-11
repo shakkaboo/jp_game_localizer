@@ -1,29 +1,44 @@
 import json
 from typing import Any
 
+_FIELD_ALIASES: dict[str, list[str]] = {
+    "line_id": ["line_id", "id", "key", "string_id"],
+    "character": ["character", "speaker", "name", "character_name"],
+    "source_text_ja": [
+        "source_text_ja", "text_ja", "text", "ja", "japanese",
+        "source", "source_text",
+    ],
+    "scene_hint": ["scene_hint", "scene", "context", "scene_context", "location"],
+}
+
+
+def _first_of(raw: dict[str, Any], candidates: list[str]) -> str:
+    for name in candidates:
+        value = raw.get(name)
+        if value is not None and value != "":
+            return str(value)
+    return ""
+
 
 class ScriptNormalizer:
     @staticmethod
     def normalize(raw_lines: list[dict[str, Any]]) -> dict[str, Any]:
         lines: list[dict[str, str]] = []
         warnings: list[str] = []
+        seen_characters: set[str] = set()
+        seen_scene_hints: set[str] = set()
 
         for idx, raw in enumerate(raw_lines, start=1):
-            source_text_ja = (
-                raw.get("source_text_ja")
-                or raw.get("text_ja")
-                or raw.get("text")
-                or ""
-            ).strip()
+            source_text_ja = _first_of(raw, _FIELD_ALIASES["source_text_ja"]).strip()
 
             if not source_text_ja:
                 orig = raw.get("line_id") or raw.get("id") or f"row {idx}"
                 warnings.append(f"Skipped line {orig}: source_text_ja is empty")
                 continue
 
-            line_id = str(raw.get("line_id") or raw.get("id") or idx)
-            character = str(raw.get("character") or raw.get("speaker") or "")
-            scene_hint = str(raw.get("scene_hint") or raw.get("scene") or "未分類")
+            line_id = _first_of(raw, _FIELD_ALIASES["line_id"]) or str(idx)
+            character = _first_of(raw, _FIELD_ALIASES["character"])
+            scene_hint = _first_of(raw, _FIELD_ALIASES["scene_hint"]) or "未分類"
 
             lines.append(
                 {
@@ -34,7 +49,17 @@ class ScriptNormalizer:
                 }
             )
 
-        return {"lines": lines, "warnings": warnings}
+            if character:
+                seen_characters.add(character)
+            if scene_hint:
+                seen_scene_hints.add(scene_hint)
+
+        return {
+            "lines": lines,
+            "warnings": warnings,
+            "detected_characters": sorted(seen_characters),
+            "detected_scene_hints": sorted(seen_scene_hints),
+        }
 
 
 class ContextNormalizer:
@@ -52,7 +77,6 @@ class ContextNormalizer:
             "warnings": [],
         }
 
-        raw: dict[str, Any]
         if isinstance(data, str):
             result["raw_context"] = data
             warnings.append("Context is plain text — no structured sections parsed")

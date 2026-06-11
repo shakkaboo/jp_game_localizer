@@ -110,6 +110,16 @@ class ProjectContextRead(BaseModel):
         from_attributes = True
 
 
+class ScriptUploadResponse(BaseModel):
+    project_id: int
+    source_file_id: int
+    file_type: str
+    total_lines: int
+    detected_characters: list[str] = []
+    detected_scene_hints: list[str] = []
+    warnings: list[str] = []
+
+
 # ---------------------------------------------------------------------------
 # Source lines
 # ---------------------------------------------------------------------------
