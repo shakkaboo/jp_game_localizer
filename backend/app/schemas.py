@@ -139,30 +139,6 @@ class SourceLineRead(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Chunks
-# ---------------------------------------------------------------------------
-
-class ChunkGenerateRequest(BaseModel):
-    project_id: int
-    source_file_id: int
-
-
-class ChunkRead(BaseModel):
-    id: int
-    project_id: int
-    source_file_id: int
-    chunk_number: int
-    chunk_title: Optional[str] = None
-    scene_hint: Optional[str] = None
-    status: str
-    previous_memory_json: Optional[str] = None
-    chunk_memory_json: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
-
-# ---------------------------------------------------------------------------
 # Translation
 # ---------------------------------------------------------------------------
 
@@ -187,6 +163,49 @@ class TranslationRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ---------------------------------------------------------------------------
+# Chunks
+# ---------------------------------------------------------------------------
+
+class ChunkRead(BaseModel):
+    id: int
+    project_id: int
+    source_file_id: int
+    chunk_number: int
+    chunk_title: Optional[str] = None
+    scene_hint: Optional[str] = None
+    status: str
+    previous_memory_json: Optional[str] = None
+    chunk_memory_json: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ChunkListRead(BaseModel):
+    id: int
+    chunk_number: int
+    chunk_title: Optional[str] = None
+    scene_hint: Optional[str] = None
+    source_file_id: int
+    lines_count: int = 0
+    status: str
+
+
+class ChunkDetailRead(BaseModel):
+    id: int
+    project_id: int
+    source_file_id: int
+    chunk_number: int
+    chunk_title: Optional[str] = None
+    scene_hint: Optional[str] = None
+    status: str
+    previous_memory_json: Optional[Any] = None
+    chunk_memory_json: Optional[Any] = None
+    source_lines: list[SourceLineRead] = []
+    translations: list[TranslationRead] = []
 
 
 # ---------------------------------------------------------------------------

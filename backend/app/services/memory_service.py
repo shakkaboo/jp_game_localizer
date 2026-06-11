@@ -3,28 +3,38 @@ from typing import Any
 
 
 class MemoryService:
-    """Manage rolling memory across chunks.
-
-    ``build_memory`` is a stub for future AI integration.
-    ``format_for_prompt`` serialises memory for inclusion in LLM prompts.
-    """
-
     @staticmethod
-    def build_memory(
-        chunk_data: dict[str, Any],
-        context: dict[str, Any],
-        previous_memory: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """Build chunk memory — currently a stub."""
-        return {
-            "chunk_summary": "",
-            "updated_environment": {},
-            "character_emotional_states": {},
-            "relationship_updates": [],
-            "tone_to_continue": "",
-            "important_terms": [],
-            "unresolved_hooks": [],
-        }
+    def build_initial_memory(context: dict[str, Any] | None) -> dict[str, Any]:
+        if not context:
+            return {}
+
+        memory: dict[str, Any] = {}
+
+        first_env = context.get("first_environment") or {}
+        if first_env:
+            memory["environment"] = first_env
+
+        project_info = context.get("project") or {}
+        if project_info:
+            memory["project"] = project_info
+
+        characters = context.get("characters") or []
+        if characters:
+            memory["characters"] = characters
+
+        relationships = context.get("relationships") or []
+        if relationships:
+            memory["relationships"] = relationships
+
+        glossary = context.get("glossary") or []
+        if glossary:
+            memory["glossary"] = glossary
+
+        raw = context.get("raw_context", "")
+        if raw and not (first_env or project_info or characters):
+            memory["raw_context_fallback"] = raw[:2000]
+
+        return memory
 
     @staticmethod
     def format_for_prompt(memory: dict[str, Any] | None) -> str:
