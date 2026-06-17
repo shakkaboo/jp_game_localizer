@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -143,3 +143,166 @@ class EvaluationTranslation(Base):
 
     evaluation_run = relationship("EvaluationRun", back_populates="translations")
     source_line = relationship("SourceLine")
+
+
+# ---------------------------------------------------------------------------
+# Benchmark models (Phase 2A — fully isolated from production tables)
+# ---------------------------------------------------------------------------
+
+
+class BenchmarkDataset(Base):
+    __tablename__ = "benchmark_datasets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    version = Column(String, nullable=False)
+    source_or_author = Column(String, nullable=False)
+    license_or_usage_status = Column(String, nullable=False)
+    reference_translation_method = Column(String, nullable=False)
+    review_status = Column(String, nullable=False, default="draft")
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("name", "version", name="uq_benchmark_dataset_name_version"),
+    )
+
+    scenes = relationship("BenchmarkScene", back_populates="dataset", cascade="all, delete-orphan")
+    runs = relationship("BenchmarkRun", back_populates="dataset", cascade="all, delete-orphan")
+
+
+class BenchmarkScene(Base):
+    __tablename__ = "benchmark_scenes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    dataset_id = Column(Integer, ForeignKey("benchmark_datasets.id"), nullable=False)
+    scene_number = Column(Integer, nullable=False)
+    title = Column(String, nullable=True)
+    genre = Column(String, nullable=False)
+    content_type = Column(String, nullable=False)
+    setting_or_location = Column(String, nullable=True)
+    tone = Column(String, nullable=True)
+    context_json = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("dataset_id", "scene_number", name="uq_benchmark_scene_number"),
+    )
+
+    dataset = relationship("BenchmarkDataset", back_populates="scenes")
+    items = relationship("BenchmarkItem", back_populates="scene", cascade="all, delete-orphan")
+    memories = relationship("BenchmarkSceneMemory", back_populates="scene", cascade="all, delete-orphan")
+
+
+class BenchmarkItem(Base):
+    __tablename__ = "benchmark_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scene_id = Column(Integer, ForeignKey("benchmark_scenes.id"), nullable=False)
+    sequence_number = Column(Integer, nullable=False)
+    source_text_ja = Column(String, nullable=False)
+    reference_en = Column(String, nullable=False)
+    speaker = Column(String, nullable=True)
+    character_voice_context = Column(Text, nullable=True)
+    relationship_context = Column(Text, nullable=True)
+    glossary_expectations = Column(Text, nullable=True)
+    placeholder_expectations = Column(Text, nullable=True)
+    requires_previous_memory = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("scene_id", "sequence_number", name="uq_benchmark_item_sequence"),
+    )
+
+    scene = relationship("BenchmarkScene", back_populates="items")
+    outputs = relationship("BenchmarkOutput", back_populates="benchmark_item")
+
+
+class BenchmarkRun(Base):
+    __tablename__ = "benchmark_runs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    dataset_id = Column(Integer, ForeignKey("benchmark_datasets.id"), nullable=False)
+    mode = Column(String, nullable=False)
+    llm_provider = Column(String, nullable=False)
+    llm_model = Column(String, nullable=False)
+    prompt_version = Column(String, nullable=False)
+    status = Column(String, nullable=False, default="pending")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    completed_at = Column(DateTime, nullable=True)
+    error_message = Column(Text, nullable=True)
+    memory_gap = Column(Boolean, nullable=False, default=False)
+    total_scenes = Column(Integer, nullable=False, default=0)
+    completed_scenes = Column(Integer, nullable=False, default=0)
+    notes = Column(Text, nullable=True)
+
+    dataset = relationship("BenchmarkDataset", back_populates="runs")
+    outputs = relationship("BenchmarkOutput", back_populates="run", cascade="all, delete-orphan")
+    memories = relationship("BenchmarkSceneMemory", back_populates="run", cascade="all, delete-orphan")
+    scores = relationship("BenchmarkAutomaticScore", back_populates="run", cascade="all, delete-orphan")
+
+
+class BenchmarkOutput(Base):
+    __tablename__ = "benchmark_outputs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(Integer, ForeignKey("benchmark_runs.id"), nullable=False)
+    benchmark_item_id = Column(Integer, ForeignKey("benchmark_items.id"), nullable=False)
+    scene_id = Column(Integer, ForeignKey("benchmark_scenes.id"), nullable=False)
+    sequence_number = Column(Integer, nullable=False)
+    output_localized_text_en = Column(Text, nullable=True)
+    output_literal_meaning = Column(Text, nullable=True)
+    output_localization_note = Column(Text, nullable=True)
+    status = Column(String, nullable=False, default="pending")
+    error_message = Column(Text, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("run_id", "benchmark_item_id", name="uq_benchmark_output_item"),
+    )
+
+    run = relationship("BenchmarkRun", back_populates="outputs")
+    benchmark_item = relationship("BenchmarkItem", back_populates="outputs")
+    score = relationship("BenchmarkAutomaticScore", back_populates="output", cascade="all, delete-orphan", uselist=False)
+
+
+class BenchmarkSceneMemory(Base):
+    __tablename__ = "benchmark_scene_memories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(Integer, ForeignKey("benchmark_runs.id"), nullable=False)
+    scene_id = Column(Integer, ForeignKey("benchmark_scenes.id"), nullable=False)
+    memory_json = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("run_id", "scene_id", name="uq_benchmark_scene_memory"),
+    )
+
+    run = relationship("BenchmarkRun", back_populates="memories")
+    scene = relationship("BenchmarkScene", back_populates="memories")
+
+
+class BenchmarkAutomaticScore(Base):
+    __tablename__ = "benchmark_automatic_scores"
+
+    id = Column(Integer, primary_key=True, index=True)
+    benchmark_output_id = Column(Integer, ForeignKey("benchmark_outputs.id"), nullable=False)
+    chrf_score = Column(Float, nullable=True)
+    bleu_score = Column(Float, nullable=True)
+    glossary_compliant = Column(Boolean, nullable=True)
+    placeholders_preserved = Column(Boolean, nullable=True)
+    missing_output = Column(Boolean, nullable=False, default=False)
+    untranslated_japanese = Column(Boolean, nullable=True)
+    line_id_mismatch = Column(Boolean, nullable=False, default=False)
+    speaker_mismatch = Column(Boolean, nullable=True)
+    details_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("benchmark_output_id", name="uq_benchmark_auto_score_output"),
+    )
+
+    output = relationship("BenchmarkOutput", back_populates="score")
+    run_id = Column(Integer, ForeignKey("benchmark_runs.id"), nullable=False)
+    run = relationship("BenchmarkRun", back_populates="scores")

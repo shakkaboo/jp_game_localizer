@@ -1,0 +1,564 @@
+dataset:
+  name: Echoes of the Rift Benchmark v1
+  version: 1.0.0
+  source_or_author: Synthetic benchmark authored for this MVP
+  license_or_usage_status: Internal evaluation use
+  reference_translation_method: Manually authored reference translations for internal MVP evaluation
+  review_status: draft
+  description: A connected six-scene benchmark set in the fictional JRPG world "Echoes of the Rift" (エコーズ・オブ・ザ・リフト).
+  scenes:
+  - scene_number: 1
+    title: The King's Summons
+    genre: RPG
+    content_type: formal_dialogue
+    setting_or_location: Castle Throne Room
+    tone: formal, medieval
+    context:
+      characters:
+      - name: Aldric
+        role: king
+        description: Aged ruler of Elderland, formal and weary
+      - name: Kaelen
+        role: hero
+        description: Newly arrived young adventurer
+      relationships:
+      - Kaelen meets King Aldric for the first time
+      glossary:
+      - term: 聖剣
+        translation: Sacred Sword
+      - term: エルダーランド
+        translation: Elderland
+      - term: リフト
+        translation: Rift
+      - term: 深淵の迷宮
+        translation: Abyssal Labyrinth
+      placeholders: []
+    items:
+    - sequence_number: 1
+      speaker: Aldric
+      source_text_ja: よくぞ参った、勇者ケイレンよ。
+      reference_en: You have come at last, Hero Kaelen.
+      character_voice_context: Archaic formal register of aged king
+      relationship_context: First meeting — king addressing hero
+    - sequence_number: 2
+      speaker: Kaelen
+      source_text_ja: 陛下、お呼びと伺い参上しました。
+      reference_en: Your Majesty, I received your summons and have come.
+      character_voice_context: Respectful formal register of young hero
+      relationship_context: Hero addressing king with deference
+    - sequence_number: 3
+      speaker: Aldric
+      source_text_ja: エルダーランドが危機に瀕しておる。
+      reference_en: Elderland is in grave peril.
+      character_voice_context: Weary, urgent
+      glossary_expectations:
+      - source_term: エルダーランド
+        expected_en: Elderland
+        case_sensitive: true
+    - sequence_number: 4
+      speaker: Aldric
+      source_text_ja: リフトと呼ばれる異界の亀裂が、世界を引き裂こうとしている。
+      reference_en: A dimensional crack called the Rift is tearing our world apart.
+      character_voice_context: Explaining the threat with gravity
+      glossary_expectations:
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+    - sequence_number: 5
+      speaker: Kaelen
+      source_text_ja: リフト…それは何ですか？
+      reference_en: The Rift… what is it exactly?
+      character_voice_context: Curious, seeking understanding
+      glossary_expectations:
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+    - sequence_number: 6
+      speaker: Aldric
+      source_text_ja: 異界とこの世界を繋ぐ門だ。既に制御不能になりつつある。
+      reference_en: It is a gate between worlds, and it is already becoming unstable.
+      character_voice_context: Warning of urgency
+    - sequence_number: 7
+      speaker: Aldric
+      source_text_ja: 古の聖剣が、リフトを封じる唯一の鍵だと言われている。
+      reference_en: The ancient Sacred Sword is said to be the only key to sealing the Rift.
+      character_voice_context: Revealing the quest goal
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+    - sequence_number: 8
+      speaker: Kaelen
+      source_text_ja: 聖剣はどこにあるのですか？
+      reference_en: Where is the Sacred Sword?
+      character_voice_context: Direct question, determined
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+    - sequence_number: 9
+      speaker: Aldric
+      source_text_ja: 深淵の迷宮の最奥に眠っておる…
+      reference_en: It sleeps in the deepest vault of the Abyssal Labyrinth…
+      character_voice_context: Mysterious, slightly foreboding
+      glossary_expectations:
+      - source_term: 深淵の迷宮
+        expected_en: Abyssal Labyrinth
+        case_sensitive: true
+    - sequence_number: 10
+      speaker: Aldric
+      source_text_ja: 勇者よ、我が民を救ってくれ。
+      reference_en: Brave hero, save my people.
+      character_voice_context: Pleading, solemn
+      relationship_context: King placing trust in the hero
+  - scene_number: 2
+    title: The Village of Stillwater
+    genre: RPG
+    content_type: npc_dialogue
+    setting_or_location: Village of Stillwater
+    tone: warm, informative
+    context:
+      characters:
+      - name: Mira
+        role: village scholar
+        description: Young woman with knowledge of the Rift and ancient lore
+      - name: Kaelen
+        role: hero
+      relationships:
+      - Mira is an old friend of Kaelen's mentor
+      - Kaelen visits Mira for information about the Abyssal Labyrinth
+      glossary:
+      - term: 結晶の破片
+        translation: Crystal Fragment
+      - term: 深淵の迷宮
+        translation: Abyssal Labyrinth
+      - term: リフト
+        translation: Rift
+      - term: 聖剣
+        translation: Sacred Sword
+      placeholders: []
+    items:
+    - sequence_number: 1
+      speaker: Mira
+      source_text_ja: あ、あなたが王様が呼んだ勇者様ですね？
+      reference_en: Ah, you must be the hero the king summoned!
+      character_voice_context: Friendly, informal villager
+    - sequence_number: 2
+      speaker: Kaelen
+      source_text_ja: はい。聖剣を探しに来ました。
+      reference_en: Yes, I have come seeking the Sacred Sword.
+      character_voice_context: Polite, focused
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 3
+      speaker: Mira
+      source_text_ja: 深淵の迷宮なら、村の北にありますよ。
+      reference_en: The Abyssal Labyrinth is just north of the village.
+      character_voice_context: Helpful, pointing the way
+    - sequence_number: 4
+      speaker: Mira
+      source_text_ja: でも、迷宮には強い魔物がたくさんいるって聞きます。
+      reference_en: But I hear there are many fierce monsters inside.
+      character_voice_context: Concerned
+    - sequence_number: 5
+      speaker: Kaelen
+      source_text_ja: どんな魔物がいるんですか？
+      reference_en: What kind of monsters?
+      character_voice_context: Cautious, gathering intel
+    - sequence_number: 6
+      speaker: Mira
+      source_text_ja: 特に、クリスタルゴーレムという奴が危険だそうです。
+      reference_en: Especially one called the Crystal Golem — it is supposedly very dangerous.
+      character_voice_context: Warning tone
+    - sequence_number: 7
+      speaker: Kaelen
+      source_text_ja: クリスタルゴーレム…
+      reference_en: A Crystal Golem… noted.
+      character_voice_context: Processing the information
+    - sequence_number: 8
+      speaker: Mira
+      source_text_ja: そうだ、結晶の破片をお持ちください。迷宮で役立ちます。
+      reference_en: Oh, take these Crystal Fragments. They will help you in the labyrinth.
+      character_voice_context: Generous, helpful
+      glossary_expectations:
+      - source_term: 結晶の破片
+        expected_en: Crystal Fragment
+        case_sensitive: true
+    - sequence_number: 9
+      speaker: Mira
+      source_text_ja: リフトを完全に封じるには、複数の結晶の破片が必要なのです。
+      reference_en: To fully seal the Rift, you will need multiple Crystal Fragments.
+      glossary_expectations:
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+      - source_term: 結晶の破片
+        expected_en: Crystal Fragment
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 10
+      speaker: Kaelen
+      source_text_ja: ありがとう、ミラ。必ずやってみせます。
+      reference_en: Thank you, Mira. I will not let you down.
+      character_voice_context: Grateful, resolute
+  - scene_number: 3
+    title: Before the Descent
+    genre: VN
+    content_type: inner_monologue
+    setting_or_location: Entrance to the Abyssal Labyrinth
+    tone: introspective, uncertain
+    context:
+      characters:
+      - name: Kaelen
+        role: hero
+        description: Young adventurer standing before his first true trial
+      relationships: []
+      glossary:
+      - term: 深淵の迷宮
+        translation: Abyssal Labyrinth
+      - term: 聖剣
+        translation: Sacred Sword
+      - term: 結晶の破片
+        translation: Crystal Fragment
+      - term: エルダーランド
+        translation: Elderland
+      placeholders: []
+    items:
+    - sequence_number: 1
+      speaker: ''
+      source_text_ja: 深淵の迷宮の入り口に立つ。
+      reference_en: I stand at the entrance to the Abyssal Labyrinth.
+      character_voice_context: Third-person narration
+    - sequence_number: 2
+      speaker: ''
+      source_text_ja: 王様の言葉が脳裏に蘇る。
+      reference_en: The king's words echo in my mind.
+      character_voice_context: Reflective narration
+      requires_previous_memory: true
+    - sequence_number: 3
+      speaker: ''
+      source_text_ja: 聖剣が本当にここにあるのだろうか。
+      reference_en: Is the Sacred Sword truly here?
+      character_voice_context: Questioning narration
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 4
+      speaker: ''
+      source_text_ja: ミラからもらった結晶の破片が、ポケットの中で温かい。
+      reference_en: The Crystal Fragments Mira gave me are warm in my pocket.
+      character_voice_context: Sensory detail narration
+      glossary_expectations:
+      - source_term: 結晶の破片
+        expected_en: Crystal Fragment
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 5
+      speaker: Kaelen
+      source_text_ja: 怖くないと言えば嘘になる。
+      reference_en: I would be lying if I said I was not afraid.
+      character_voice_context: First-person honest admission
+    - sequence_number: 6
+      speaker: Kaelen
+      source_text_ja: でも、引くわけにはいかない。
+      reference_en: But I cannot turn back now.
+      character_voice_context: Steeling resolve
+    - sequence_number: 7
+      speaker: ''
+      source_text_ja: 勇者としての誇りが、足を前へと進ませる。
+      reference_en: A hero's pride drives my feet forward.
+      character_voice_context: Motivational narration
+    - sequence_number: 8
+      speaker: ''
+      source_text_ja: エルダーランドの人々を守るためだ。
+      reference_en: This is to protect the people of Elderland.
+      glossary_expectations:
+      - source_term: エルダーランド
+        expected_en: Elderland
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 9
+      speaker: ''
+      source_text_ja: 深く息を吸い込み、一歩を踏み出した。
+      reference_en: I take a deep breath and step forward.
+      character_voice_context: Action narration
+    - sequence_number: 10
+      speaker: Kaelen
+      source_text_ja: 行こう。運命が待っている。
+      reference_en: Let us go. Fate awaits.
+      character_voice_context: Determined, theatrical
+  - scene_number: 4
+    title: The Labyrinth's Wrath
+    genre: Action
+    content_type: combat_dialogue
+    setting_or_location: Abyssal Labyrinth — first floor
+    tone: aggressive, urgent
+    context:
+      characters:
+      - name: Rorn
+        role: mercenary
+        description: Grizzled warrior hired by the king, loud and boisterous
+      - name: Yuki
+        role: mysterious traveler
+        description: Reserved and perceptive, joined Kaelen in the labyrinth
+      - name: Kaelen
+        role: hero
+      - name: Guardian
+        role: labyrinth guardian
+        description: Ancient construct bound to protect the Sacred Sword
+      relationships:
+      - Rorn respects strength and scoffs at hesitation
+      - Yuki is terse but observant, trusts actions over words
+      - The Guardian serves the labyrinth, not the king of Elderland
+      glossary:
+      - term: 聖剣
+        translation: Sacred Sword
+      placeholders: []
+    items:
+    - sequence_number: 1
+      speaker: Rorn
+      source_text_ja: 遅かったな、勇者様！待ちくたびれたぞ！
+      reference_en: You are late, hero! I have been waiting forever!
+      character_voice_context: Loud, teasing, familiar
+    - sequence_number: 2
+      speaker: Kaelen
+      source_text_ja: あなたは…誰ですか？
+      reference_en: And you are…?
+      character_voice_context: Surprised, cautious
+    - sequence_number: 3
+      speaker: Rorn
+      source_text_ja: ローンだ！王様に頼まれて、お前の護衛として来た！
+      reference_en: Name is Rorn! The king hired me as your bodyguard!
+      character_voice_context: Proud, booming
+    - sequence_number: 4
+      speaker: Kaelen
+      source_text_ja: 護衛…？また一人増えたんですね。
+      reference_en: A bodyguard…? That makes another addition to the party.
+      character_voice_context: Dry, slightly amused
+    - sequence_number: 5
+      speaker: Rorn
+      source_text_ja: グッハッハ！気に入ったぜ！
+      reference_en: Hah-hah! I like your attitude already!
+      character_voice_context: Booming laugh, approving
+    - sequence_number: 6
+      speaker: Yuki
+      source_text_ja: …無駄口はやめて。前方に敵影。
+      reference_en: …Enough chatter. Hostile presence ahead.
+      character_voice_context: Terse, low, alert
+    - sequence_number: 7
+      speaker: Rorn
+      source_text_ja: ちっ、戦闘か。かかってこいや！
+      reference_en: Tch, a fight. Come at me!
+      character_voice_context: Excited for battle
+    - sequence_number: 8
+      speaker: Guardian
+      source_text_ja: ここから先は通さぬ！
+      reference_en: None shall pass beyond this point!
+      character_voice_context: Echoing, ancient voice
+    - sequence_number: 9
+      speaker: Kaelen
+      source_text_ja: 俺たちは聖剣を取りに来た。道を開けろ！
+      reference_en: We have come for the Sacred Sword. Stand aside!
+      character_voice_context: Defiant, claiming purpose
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 10
+      speaker: Guardian
+      source_text_ja: 聖剣を守るが我が使命。通すわけにはいかぬ！
+      reference_en: Protecting the Sacred Sword is my sworn duty. I cannot let you pass!
+      character_voice_context: Resolute, ancient
+      glossary_expectations:
+      - source_term: 聖剣
+        expected_en: Sacred Sword
+        case_sensitive: true
+      requires_previous_memory: true
+  - scene_number: 5
+    title: The Chamber of Seals
+    genre: Quest
+    content_type: instructions
+    setting_or_location: Abyssal Labyrinth — seal chamber
+    tone: mysterious, puzzle-like
+    context:
+      characters:
+      - name: Kaelen
+        role: hero
+      - name: Yuki
+        role: mysterious traveler
+      - name: Rorn
+        role: mercenary
+      relationships:
+      - Yuki knows more about the labyrinth than she reveals
+      - Rorn grows impatient with puzzles
+      glossary:
+      - term: 結晶の破片
+        translation: Crystal Fragment
+      - term: 聖剣
+        translation: Sacred Sword
+      placeholders:
+      - '{結晶スロット}'
+      - '{捧げ物}'
+      - '{聖なる光}'
+      - '{導き}'
+      - '{試練}'
+    items:
+    - sequence_number: 1
+      speaker: ''
+      source_text_ja: 壁に刻まれた文字：「{結晶スロット}に{捧げ物}を捧げよ」
+      reference_en: 'Inscription on the wall: ''Offer the {offering} at the {crystal_slot}.'
+      character_voice_context: Ancient inscription text
+      placeholder_expectations:
+      - '{結晶スロット}'
+      - '{捧げ物}'
+    - sequence_number: 2
+      speaker: ''
+      source_text_ja: 「{聖なる光}が{導き}を示すだろう」
+      reference_en: '''The {sacred_light} shall reveal the {path}.'
+      character_voice_context: Ancient inscription text
+      placeholder_expectations:
+      - '{聖なる光}'
+      - '{導き}'
+    - sequence_number: 3
+      speaker: Kaelen
+      source_text_ja: 結晶スロット…これかな？
+      reference_en: A crystal slot… is this it?
+      character_voice_context: Thinking aloud
+    - sequence_number: 4
+      speaker: Yuki
+      source_text_ja: ミラからもらった破片を使ってみて。
+      reference_en: Try using the fragments Mira gave you.
+      character_voice_context: Quiet suggestion
+      glossary_expectations:
+      - source_term: 破片
+        expected_en: fragments
+      requires_previous_memory: true
+    - sequence_number: 5
+      speaker: ''
+      source_text_ja: 結晶の破片がスロットにはまる。
+      reference_en: The Crystal Fragment slides perfectly into the slot.
+      character_voice_context: Action narration
+    - sequence_number: 6
+      speaker: ''
+      source_text_ja: 部屋が青い光に包まれる。
+      reference_en: The chamber is bathed in blue light.
+      character_voice_context: Atmospheric narration
+    - sequence_number: 7
+      speaker: Rorn
+      source_text_ja: おお！やったじゃねえか！
+      reference_en: Whoa! You actually did it!
+      character_voice_context: Impressed, excited
+    - sequence_number: 8
+      speaker: Kaelen
+      source_text_ja: まだだ。先に進もう。
+      reference_en: Not yet. Let us keep moving.
+      character_voice_context: Focused, not celebrating yet
+    - sequence_number: 9
+      speaker: ''
+      source_text_ja: 「真の勇者よ、{試練}を超えよ」
+      reference_en: '''True hero, overcome the {trial}.'
+      character_voice_context: Final inscription
+      placeholder_expectations:
+      - '{試練}'
+    - sequence_number: 10
+      speaker: Kaelen
+      source_text_ja: 試練…まだ先があるのか。
+      reference_en: A trial… there is still more ahead.
+      character_voice_context: Resigned but determined
+  - scene_number: 6
+    title: The Sacred Sword
+    genre: Item
+    content_type: item_skill_ui
+    setting_or_location: Abyssal Labyrinth — final chamber
+    tone: triumphant, expository
+    context:
+      characters:
+      - name: Kaelen
+        role: hero
+      relationships: []
+      glossary:
+      - term: 聖剣
+        translation: Sacred Sword
+      - term: 結晶の破片
+        translation: Crystal Fragment
+      - term: リフト
+        translation: Rift
+      placeholders:
+      - '{player}'
+    items:
+    - sequence_number: 1
+      speaker: ''
+      source_text_ja: 【聖剣エクスカリバー】
+      reference_en: '[Sacred Sword Excalibur]'
+      character_voice_context: Item name display
+    - sequence_number: 2
+      speaker: ''
+      source_text_ja: 力の波動を放つ伝説の剣。リフトを封じる力を秘めている。
+      reference_en: A legendary sword radiating power. It holds the power to seal the Rift.
+      character_voice_context: Item description text
+      glossary_expectations:
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 3
+      speaker: ''
+      source_text_ja: 【スキル：聖剣解放】
+      reference_en: '[Skill: Sacred Sword Release]'
+      character_voice_context: Skill name display
+    - sequence_number: 4
+      speaker: ''
+      source_text_ja: 聖剣の真の力を解放し、敵に大ダメージを与える。
+      reference_en: Unleash the Sacred Sword's true power, dealing massive damage to enemies.
+      character_voice_context: Skill description text
+    - sequence_number: 5
+      speaker: ''
+      source_text_ja: 【スキル：結晶の守り】
+      reference_en: '[Skill: Crystal Guard]'
+      character_voice_context: Skill name display
+    - sequence_number: 6
+      speaker: ''
+      source_text_ja: 結晶の破片の力で味方全員を守る防御スキル。
+      reference_en: A defensive skill that protects all allies with the power of Crystal Fragments.
+      character_voice_context: Skill description text
+      glossary_expectations:
+      - source_term: 結晶の破片
+        expected_en: Crystal Fragment
+        case_sensitive: true
+      requires_previous_memory: true
+    - sequence_number: 7
+      speaker: ''
+      source_text_ja: 【UI】リフト封鎖率：87％
+      reference_en: '[UI] Rift Seal Progress: 87%'
+      character_voice_context: UI status display
+    - sequence_number: 8
+      speaker: ''
+      source_text_ja: 【システム】{player}は聖剣を手に入れた！
+      reference_en: '[System] {player} obtained the Sacred Sword!'
+      character_voice_context: System notification text
+      placeholder_expectations:
+      - '{player}'
+    - sequence_number: 9
+      speaker: ''
+      source_text_ja: 【システム】新しいスキルを習得した！
+      reference_en: '[System] Learned a new skill!'
+      character_voice_context: System notification text
+    - sequence_number: 10
+      speaker: Kaelen
+      source_text_ja: さあ、リフトを封じに行こう。
+      reference_en: Now then, let us go and seal the Rift.
+      character_voice_context: Determined, quest conclusion
+      glossary_expectations:
+      - source_term: リフト
+        expected_en: Rift
+        case_sensitive: true
+      requires_previous_memory: true
