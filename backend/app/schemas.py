@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from enum import Enum
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field
@@ -215,3 +216,57 @@ class ChunkDetailRead(BaseModel):
 class ExportRequest(BaseModel):
     project_id: int
     format: str = "csv"  # "csv" | "json"
+
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+
+class EvaluationMode(str, Enum):
+    plain = "plain"
+    context = "context"
+    context_memory = "context_memory"
+
+
+class EvaluationRunRead(BaseModel):
+    id: int
+    chunk_id: int
+    mode: str
+    provider: str
+    model: str
+    prompt_version: str
+    created_at: datetime
+    status: str
+    generated_memory: Optional[Any] = None
+    error_message: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class EvaluationTranslationRead(BaseModel):
+    id: int
+    evaluation_run_id: int
+    source_line_id: int
+    line_id: Optional[str] = None
+    character: Optional[str] = None
+    source_text_ja: str
+    literal_meaning: Optional[str] = None
+    localized_text_en: Optional[str] = None
+    localization_note: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class EvaluationRunDetailRead(EvaluationRunRead):
+    translations: list[EvaluationTranslationRead] = []
+
+
+class EvaluationTranslateResponse(BaseModel):
+    run_id: int
+    chunk_id: int
+    mode: str
+    status: str
+    translations_count: int
+    generated_memory: Optional[Any] = None

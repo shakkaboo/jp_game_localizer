@@ -19,6 +19,22 @@ def get_llm_settings() -> dict[str, Any]:
     }
 
 
+def get_normalized_provider() -> str:
+    settings = get_llm_settings()
+    base_url = settings["base_url"].rstrip("/")
+
+    known_map = {
+        "https://api.openai.com/v1": "openai",
+        "https://api.groq.com/openai/v1": "groq",
+    }
+
+    if base_url in known_map:
+        return known_map[base_url]
+
+    domain = base_url.replace("https://", "").replace("http://", "").split("/")[0]
+    return domain if domain else "custom"
+
+
 def _attempt(
     messages: list[dict[str, str]], use_json_format: bool
 ) -> dict[str, Any]:

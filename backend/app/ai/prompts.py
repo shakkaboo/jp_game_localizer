@@ -1,57 +1,61 @@
 import json
 from typing import Any
 
+PROMPT_VERSION = "1.0.0"
+
 
 def build_chunk_localization_prompt(
-    project_context: dict[str, Any],
-    characters: list[dict[str, Any]],
-    relationships: list[dict[str, Any]],
-    glossary: list[dict[str, Any]],
-    style_rules: list[dict[str, Any]],
-    raw_context: str,
-    previous_memory: dict[str, Any] | None,
     chunk_lines: list[dict[str, str]],
+    project_context: dict[str, Any] | None = None,
+    characters: list[dict[str, Any]] | None = None,
+    relationships: list[dict[str, Any]] | None = None,
+    glossary: list[dict[str, Any]] | None = None,
+    style_rules: list[dict[str, Any]] | None = None,
+    raw_context: str = "",
+    previous_memory: dict[str, Any] | None = None,
+    mode: str = "context_memory",
 ) -> list[dict[str, str]]:
     sections: list[str] = []
 
-    proj_name = project_context.get("title") or "Unknown Project"
-    proj_genre = project_context.get("genre") or ""
-    proj_tone = project_context.get("target_tone") or ""
-    proj_line = f"Game: {proj_name}"
-    if proj_genre:
-        proj_line += f" | Genre: {proj_genre}"
-    if proj_tone:
-        proj_line += f" | Target tone: {proj_tone}"
-    sections.append(proj_line)
+    if mode in ("context", "context_memory"):
+        proj_name = (project_context or {}).get("title") or "Unknown Project"
+        proj_genre = (project_context or {}).get("genre") or ""
+        proj_tone = (project_context or {}).get("target_tone") or ""
+        proj_line = f"Game: {proj_name}"
+        if proj_genre:
+            proj_line += f" | Genre: {proj_genre}"
+        if proj_tone:
+            proj_line += f" | Target tone: {proj_tone}"
+        sections.append(proj_line)
 
-    if raw_context:
-        sections.append(f"\n## Raw Context\n{raw_context[:3000]}")
+        if raw_context:
+            sections.append(f"\n## Raw Context\n{raw_context[:3000]}")
 
-    if characters:
-        char_block = "\n".join(
-            json.dumps(c, ensure_ascii=False) for c in characters
-        )
-        sections.append(f"\n## Character Profiles\n{char_block}")
+        if characters:
+            char_block = "\n".join(
+                json.dumps(c, ensure_ascii=False) for c in characters
+            )
+            sections.append(f"\n## Character Profiles\n{char_block}")
 
-    if relationships:
-        rel_block = "\n".join(
-            json.dumps(r, ensure_ascii=False) for r in relationships
-        )
-        sections.append(f"\n## Relationships\n{rel_block}")
+        if relationships:
+            rel_block = "\n".join(
+                json.dumps(r, ensure_ascii=False) for r in relationships
+            )
+            sections.append(f"\n## Relationships\n{rel_block}")
 
-    if glossary:
-        gloss_block = "\n".join(
-            json.dumps(g, ensure_ascii=False) for g in glossary
-        )
-        sections.append(f"\n## Glossary\n{gloss_block}")
+        if glossary:
+            gloss_block = "\n".join(
+                json.dumps(g, ensure_ascii=False) for g in glossary
+            )
+            sections.append(f"\n## Glossary\n{gloss_block}")
 
-    if style_rules:
-        style_block = "\n".join(
-            json.dumps(s, ensure_ascii=False) for s in style_rules
-        )
-        sections.append(f"\n## Style Rules\n{style_block}")
+        if style_rules:
+            style_block = "\n".join(
+                json.dumps(s, ensure_ascii=False) for s in style_rules
+            )
+            sections.append(f"\n## Style Rules\n{style_block}")
 
-    if previous_memory:
+    if mode == "context_memory" and previous_memory:
         sections.append(
             f"\n## Previous Scene Memory\n{json.dumps(previous_memory, ensure_ascii=False, indent=2)}"
         )

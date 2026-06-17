@@ -23,6 +23,9 @@ frontend/out/
 node_modules/
 .next/
 
+# Python cache
+.pytest_cache/
+
 # OS / editor
 .DS_Store
 .vscode/

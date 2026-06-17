@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
@@ -101,3 +101,45 @@ class Translation(Base):
     project = relationship("Project", back_populates="translations")
     chunk = relationship("Chunk", back_populates="translations")
     source_line = relationship("SourceLine", back_populates="translations")
+
+
+class EvaluationRun(Base):
+    __tablename__ = "evaluation_runs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    chunk_id = Column(Integer, ForeignKey("chunks.id"), nullable=False)
+    mode = Column(String, nullable=False)
+    provider = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    prompt_version = Column(String, nullable=False)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    status = Column(String, default="pending", nullable=False)
+    request_config = Column(Text, nullable=True)
+    generated_memory = Column(Text, nullable=True)
+    error_message = Column(Text, nullable=True)
+
+    chunk = relationship("Chunk")
+    translations = relationship(
+        "EvaluationTranslation", back_populates="evaluation_run", cascade="all, delete-orphan"
+    )
+
+
+class EvaluationTranslation(Base):
+    __tablename__ = "evaluation_translations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    evaluation_run_id = Column(
+        Integer, ForeignKey("evaluation_runs.id"), nullable=False
+    )
+    source_line_id = Column(Integer, ForeignKey("source_lines.id"), nullable=False)
+    line_id = Column(String, nullable=True)
+    character = Column(String, nullable=True)
+    source_text_ja = Column(String, nullable=False)
+    literal_meaning = Column(Text, nullable=True)
+    localized_text_en = Column(Text, nullable=True)
+    localization_note = Column(Text, nullable=True)
+
+    evaluation_run = relationship("EvaluationRun", back_populates="translations")
+    source_line = relationship("SourceLine")

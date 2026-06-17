@@ -53,11 +53,13 @@ from app.routes.upload import router as upload_router
 from app.routes.chunks import router as chunks_router
 from app.routes.translate import router as translate_router
 from app.routes.export import router as export_router
+from app.routes.evaluate import router as evaluate_router
 
 app.include_router(upload_router)
 app.include_router(chunks_router)
 app.include_router(translate_router)
 app.include_router(export_router)
+app.include_router(evaluate_router)
 
 
 # ---------------------------------------------------------------------------
