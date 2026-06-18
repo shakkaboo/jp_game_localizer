@@ -46,7 +46,7 @@ class ExportService:
         }
 
     @staticmethod
-    def _to_csv(rows: list) -> str:
+    def _to_csv(rows: list) -> bytes:
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow(
@@ -75,7 +75,7 @@ class ExportService:
                     d["status"],
                 ]
             )
-        return output.getvalue()
+        return output.getvalue().encode("utf-8-sig")
 
     @staticmethod
     def _to_json(rows: list) -> str:

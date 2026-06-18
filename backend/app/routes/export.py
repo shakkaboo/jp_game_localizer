@@ -28,11 +28,15 @@ async def export_localized_script(
             headers={"Content-Disposition": f'attachment; filename="localized_script_{project_id}.pdf"'},
         )
 
-    media_type = "application/json" if format == "json" else "text/csv"
-    filename = f"localized_script_{project_id}.{format}"
+    if format == "csv":
+        return Response(
+            content=content,
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="localized_script_{project_id}.csv"'},
+        )
 
     return PlainTextResponse(
         content=content,
-        media_type=media_type,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="localized_script_{project_id}.json"'},
     )
