@@ -59,6 +59,12 @@ export default function BenchmarkPage() {
         <p className="mt-1 text-zinc-500">
           Scene-aware evaluation of JP→EN game localization across three modes.
         </p>
+        <a
+          href="/benchmark/compare"
+          className="mt-3 inline-block rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+        >
+          Compare Modes
+        </a>
       </div>
 
       {datasets.length === 0 ? (
