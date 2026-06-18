@@ -17,16 +17,21 @@ export default function DatasetCard({ dataset, latestRuns }: Props) {
   }
 
   return (
-    <Link
-      href={`/benchmark/datasets/${dataset.id}`}
-      className="block rounded-xl border border-zinc-200 bg-white p-5 transition-colors hover:border-zinc-300"
-    >
+    <div className="block rounded-xl border border-zinc-200 bg-white p-5 transition-colors hover:border-zinc-300">
       <div className="mb-3 flex items-start justify-between">
         <div>
           <h3 className="text-lg font-semibold text-zinc-900">{dataset.name}</h3>
           <p className="text-sm text-zinc-500">v{dataset.version}</p>
         </div>
-        <StatusBadge status={dataset.review_status} />
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/benchmark/datasets/${dataset.id}`}
+            className="text-xs font-medium text-indigo-600 hover:text-indigo-700"
+          >
+            View dataset &rarr;
+          </Link>
+          <StatusBadge status={dataset.review_status} />
+        </div>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
@@ -65,6 +70,6 @@ export default function DatasetCard({ dataset, latestRuns }: Props) {
           })}
         </div>
       )}
-    </Link>
+    </div>
   )
 }
