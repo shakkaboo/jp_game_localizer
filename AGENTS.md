@@ -325,3 +325,11 @@ Do not commit:
 * exported user files.
 
 Use descriptive commits focused on one phase or fix.
+
+---
+
+## Testing Gotchas
+
+* `SourceFile` column is `original_filename`, not `filename`. Writing `filename=` will fail silently via SQLAlchemy (accepted but ignored by the constructor — the column won't be set).
+* Translation objects must be explicitly `db_session.add(txn)`-ed before `commit()`. Instantiating `Translation(...)` without adding it will create no row and produce no error. Export queries use `outerjoin(Translation)` — a missing translation produces `status="pending"` with empty localized text.
+* When a helper method in a test class needs to be called from a different test class, annotate it with `@staticmethod` so it can be called as `TestClass.method(db_session)` without instantiation.
