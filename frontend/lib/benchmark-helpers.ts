@@ -42,6 +42,18 @@ export function calculateScenePreviewTotal(values: {
   )
 }
 
+export function formatCoveragePercentage(value: number): string {
+  return `${value.toFixed(1)}%`
+}
+
+export function formatHardFailureRatePercentage(
+  value: number | null | undefined,
+  decimals = 1
+): string {
+  if (value === null || value === undefined) return "—"
+  return `${(value * 100).toFixed(decimals)}%`
+}
+
 export function formatNullableMetric(
   value: number | null | undefined,
   decimals = 2

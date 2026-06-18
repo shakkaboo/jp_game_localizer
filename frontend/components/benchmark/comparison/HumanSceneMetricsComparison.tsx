@@ -1,7 +1,7 @@
 "use client"
 
 import type { BenchmarkHumanMetricsSummary } from "@/types/benchmark"
-import { formatNullableMetric } from "@/lib/benchmark-helpers"
+import { formatCoveragePercentage, formatNullableMetric } from "@/lib/benchmark-helpers"
 
 interface Props {
   humanMetrics: BenchmarkHumanMetricsSummary | null
@@ -23,7 +23,7 @@ export default function HumanSceneMetricsComparison({ humanMetrics, label }: Pro
   return (
     <div className="space-y-2 text-xs">
       <p className="font-semibold text-zinc-800">{label}</p>
-      <Row k="Scene Review Coverage" v={`${(humanMetrics.scene_review_coverage_percentage * 100).toFixed(1)}%`} />
+      <Row k="Scene Review Coverage" v={formatCoveragePercentage(humanMetrics.scene_review_coverage_percentage)} />
       <Row k="Evaluations" v={String(scene_scores.scene_evaluation_count)} />
       <Row k="Unique Scenes Reviewed" v={String(scene_scores.unique_reviewed_scenes)} />
       <Row k="Average Total" v={formatNullableMetric(scene_scores.average_total) + " / 100"} />

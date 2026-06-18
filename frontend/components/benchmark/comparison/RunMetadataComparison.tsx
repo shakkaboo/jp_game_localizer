@@ -1,6 +1,7 @@
 "use client"
 
 import type { BenchmarkCompareEntry } from "@/types/benchmark"
+import { formatCoveragePercentage } from "@/lib/benchmark-helpers"
 
 interface Props {
   entry: BenchmarkCompareEntry
@@ -8,8 +9,6 @@ interface Props {
 }
 
 export default function RunMetadataComparison({ entry, label }: Props) {
-  const pct = (v: number) => `${(v * 100).toFixed(1)}%`
-
   return (
     <div className="space-y-2 text-xs">
       <p className="font-semibold text-zinc-800">{label}</p>
@@ -19,9 +18,9 @@ export default function RunMetadataComparison({ entry, label }: Props) {
       <Row k="Model" v={entry.model || "—"} />
       <Row k="Prompt Version" v={entry.prompt_version || "—"} />
       <Row k="Memory Gap" v={entry.memory_gap ? "Yes" : "No"} />
-      <Row k="Item Coverage" v={pct(entry.item_review_coverage_percentage)} />
-      <Row k="Scene Coverage" v={pct(entry.scene_review_coverage_percentage)} />
-      <Row k="HF Coverage" v={pct(entry.hard_failure_review_coverage_percentage)} />
+      <Row k="Item Coverage" v={formatCoveragePercentage(entry.item_review_coverage_percentage)} />
+      <Row k="Scene Coverage" v={formatCoveragePercentage(entry.scene_review_coverage_percentage)} />
+      <Row k="HF Coverage" v={formatCoveragePercentage(entry.hard_failure_review_coverage_percentage)} />
       {entry.coverage_note && (
         <div className="mt-2 rounded-md bg-amber-50 px-2 py-1.5 text-xs text-amber-700">
           {entry.coverage_note}

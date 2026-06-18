@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getRun, getRunMetrics, getHumanMetrics } from "@/lib/benchmark-api"
 import type { BenchmarkRunDetailRead, BenchmarkMetricsSummary, BenchmarkHumanMetricsSummary } from "@/types/benchmark"
+import { formatCoveragePercentage } from "@/lib/benchmark-helpers"
 import ModeBadge from "@/components/benchmark/ModeBadge"
 import StatusBadge from "@/components/benchmark/StatusBadge"
 import WarningBanner from "@/components/benchmark/WarningBanner"
@@ -153,19 +154,19 @@ export default function RunDetailPage() {
             <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
               <p className="text-xs text-zinc-500">Item Review Coverage</p>
               <p className="mt-0.5 text-sm font-semibold text-zinc-800">
-                {(humanMetrics.item_review_coverage_percentage * 100).toFixed(1)}%
+                {formatCoveragePercentage(humanMetrics.item_review_coverage_percentage)}
               </p>
             </div>
             <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
               <p className="text-xs text-zinc-500">Scene Review Coverage</p>
               <p className="mt-0.5 text-sm font-semibold text-zinc-800">
-                {(humanMetrics.scene_review_coverage_percentage * 100).toFixed(1)}%
+                {formatCoveragePercentage(humanMetrics.scene_review_coverage_percentage)}
               </p>
             </div>
             <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
               <p className="text-xs text-zinc-500">Hard-Failure Review Coverage</p>
               <p className="mt-0.5 text-sm font-semibold text-zinc-800">
-                {(humanMetrics.hard_failure_review_coverage_percentage * 100).toFixed(1)}%
+                {formatCoveragePercentage(humanMetrics.hard_failure_review_coverage_percentage)}
               </p>
             </div>
           </div>

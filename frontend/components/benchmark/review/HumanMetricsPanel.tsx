@@ -1,35 +1,27 @@
 "use client"
 
 import type { BenchmarkHumanMetricsSummary } from "@/types/benchmark"
+import { formatCoveragePercentage, formatHardFailureRatePercentage, formatNullableMetric } from "@/lib/benchmark-helpers"
 import ReviewCoverageCard from "./ReviewCoverageCard"
 
 interface Props {
   metrics: BenchmarkHumanMetricsSummary
 }
 
-function formatPct(v: number): string {
-  return `${(v * 100).toFixed(1)}%`
-}
-
-function formatNullable(v: number | null, decimals = 2): string {
-  if (v === null || v === undefined) return "—"
-  return v.toFixed(decimals)
-}
-
 function CriterionRow({ name, stats }: { name: string; stats: { mean: number | null; std: number | null } | null }) {
   return (
     <tr className="border-b border-zinc-100 text-xs">
       <td className="py-1.5 pr-4 text-zinc-700">{name}</td>
-      <td className="py-1.5 pr-4 text-right text-zinc-600">{formatNullable(stats?.mean ?? null)}</td>
-      <td className="py-1.5 text-right text-zinc-400">{formatNullable(stats?.std ?? null)}</td>
+      <td className="py-1.5 pr-4 text-right text-zinc-600">{formatNullableMetric(stats?.mean ?? null)}</td>
+      <td className="py-1.5 text-right text-zinc-400">{formatNullableMetric(stats?.std ?? null)}</td>
     </tr>
   )
 }
 
 function ReviewerRow({ name, value }: { name: string; value: unknown }) {
   const avg = typeof value === "object" && value !== null
-    ? formatNullable((value as Record<string, number>).average_total ?? null)
-    : typeof value === "number" ? formatNullable(value) : "—"
+    ? formatNullableMetric((value as Record<string, number>).average_total ?? null)
+    : typeof value === "number" ? formatNullableMetric(value) : "—"
   return (
     <tr className="border-b border-zinc-100 text-xs">
       <td className="py-1.5 pr-4 text-zinc-700">{name}</td>
@@ -64,15 +56,15 @@ export default function HumanMetricsPanel({ metrics }: Props) {
       <div className="grid grid-cols-3 gap-3">
         <ReviewCoverageCard
           label="Item Review Coverage"
-          value={formatPct(metrics.item_review_coverage_percentage)}
+          value={formatCoveragePercentage(metrics.item_review_coverage_percentage)}
         />
         <ReviewCoverageCard
           label="Scene Review Coverage"
-          value={formatPct(metrics.scene_review_coverage_percentage)}
+          value={formatCoveragePercentage(metrics.scene_review_coverage_percentage)}
         />
         <ReviewCoverageCard
           label="Hard-Failure Review Coverage"
-          value={formatPct(metrics.hard_failure_review_coverage_percentage)}
+          value={formatCoveragePercentage(metrics.hard_failure_review_coverage_percentage)}
         />
       </div>
 
@@ -84,11 +76,11 @@ export default function HumanMetricsPanel({ metrics }: Props) {
           <ReviewCoverageCard label="Unique Outputs Reviewed" value={item_scores.unique_reviewed_output_count} />
           <ReviewCoverageCard
             label="Reviewers per Output"
-            value={formatNullable(item_scores.average_reviewers_per_reviewed_output)}
+            value={formatNullableMetric(item_scores.average_reviewers_per_reviewed_output)}
           />
           <ReviewCoverageCard
             label="Average Total"
-            value={formatNullable(item_scores.average_total)}
+            value={formatNullableMetric(item_scores.average_total)}
             suffix="/ 100"
           />
         </div>
@@ -134,11 +126,11 @@ export default function HumanMetricsPanel({ metrics }: Props) {
           <ReviewCoverageCard label="Unique Scenes Reviewed" value={scene_scores.unique_reviewed_scenes} />
           <ReviewCoverageCard
             label="Coverage"
-            value={formatPct(scene_scores.scene_review_coverage_percentage)}
+            value={formatCoveragePercentage(scene_scores.scene_review_coverage_percentage)}
           />
           <ReviewCoverageCard
             label="Average Total"
-            value={formatNullable(scene_scores.average_total)}
+            value={formatNullableMetric(scene_scores.average_total)}
             suffix="/ 100"
           />
         </div>
@@ -181,8 +173,7 @@ export default function HumanMetricsPanel({ metrics }: Props) {
           />
           <ReviewCoverageCard
             label="Failure Rate"
-            value={formatNullable(hard_failures.hard_failure_rate_among_reviewed_outputs, 1)}
-            suffix="%"
+            value={formatHardFailureRatePercentage(hard_failures.hard_failure_rate_among_reviewed_outputs, 1)}
           />
         </div>
 

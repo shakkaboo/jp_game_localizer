@@ -1,6 +1,7 @@
 "use client"
 
 import type { BenchmarkCompareEntry } from "@/types/benchmark"
+import { formatCoveragePercentage } from "@/lib/benchmark-helpers"
 
 interface Props {
   entries: BenchmarkCompareEntry[]
@@ -20,8 +21,6 @@ const coverageKeys: { key: CoverageKey }[] = [
 export default function CoverageComparison({ entries }: Props) {
   if (entries.length === 0) return null
 
-  const pct = (v: number) => `${(v * 100).toFixed(1)}%`
-
   const labels = ["Plain", "Context", "Context + Memory"]
 
   return (
@@ -37,7 +36,7 @@ export default function CoverageComparison({ entries }: Props) {
               <div key={e.run_id} className="flex justify-between text-xs">
                 <span className="text-zinc-500">{labels[i] || e.mode}</span>
                 <span className="font-medium text-zinc-800">
-                  {pct(e[key])}
+                  {formatCoveragePercentage(e[key])}
                 </span>
               </div>
             ))}

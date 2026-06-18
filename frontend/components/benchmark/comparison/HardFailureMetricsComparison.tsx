@@ -1,7 +1,7 @@
 "use client"
 
 import type { BenchmarkHumanMetricsSummary } from "@/types/benchmark"
-import { formatNullableMetric } from "@/lib/benchmark-helpers"
+import { formatCoveragePercentage, formatHardFailureRatePercentage } from "@/lib/benchmark-helpers"
 
 interface Props {
   humanMetrics: BenchmarkHumanMetricsSummary | null
@@ -23,13 +23,13 @@ export default function HardFailureMetricsComparison({ humanMetrics, label }: Pr
   return (
     <div className="space-y-2 text-xs">
       <p className="font-semibold text-zinc-800">{label}</p>
-      <Row k="HF Review Coverage" v={`${(hard_failure_review_coverage_percentage * 100).toFixed(1)}%`} />
+      <Row k="HF Review Coverage" v={formatCoveragePercentage(hard_failure_review_coverage_percentage)} />
       <Row k="Reviews" v={String(hard_failures.hard_failure_review_count)} />
       <Row k="Unique Outputs Reviewed" v={String(hard_failures.unique_outputs_reviewed_for_hard_failures)} />
       <Row k="Outputs with Any HF" v={String(hard_failures.outputs_with_any_hard_failure)} />
       <Row
         k="HF Rate"
-        v={formatNullableMetric(hard_failures.hard_failure_rate_among_reviewed_outputs, 1) + "%"}
+        v={formatHardFailureRatePercentage(hard_failures.hard_failure_rate_among_reviewed_outputs, 1)}
       />
 
       {Object.keys(hard_failures.count_per_flag).length > 0 && (

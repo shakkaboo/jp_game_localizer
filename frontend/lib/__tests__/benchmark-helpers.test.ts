@@ -3,6 +3,8 @@ import {
   normalizeReviewerLabel,
   calculateItemPreviewTotal,
   calculateScenePreviewTotal,
+  formatCoveragePercentage,
+  formatHardFailureRatePercentage,
   formatNullableMetric,
   isPartialExplicitSelection,
   hasDuplicateIds,
@@ -67,6 +69,58 @@ describe("calculateScenePreviewTotal", () => {
       genre_tone_consistency: 10,
     })
     expect(result).toBe(100)
+  })
+})
+
+describe("formatCoveragePercentage", () => {
+  it("returns 0.0% for zero", () => {
+    expect(formatCoveragePercentage(0)).toBe("0.0%")
+  })
+
+  it("formats 16.7 as 16.7%", () => {
+    expect(formatCoveragePercentage(16.7)).toBe("16.7%")
+  })
+
+  it("formats 1.7 as 1.7%", () => {
+    expect(formatCoveragePercentage(1.7)).toBe("1.7%")
+  })
+
+  it("formats 100.0 as 100.0%", () => {
+    expect(formatCoveragePercentage(100.0)).toBe("100.0%")
+  })
+
+  it("formats 33.333 as 33.3% (rounds to 1 decimal)", () => {
+    expect(formatCoveragePercentage(33.333)).toBe("33.3%")
+  })
+
+  it("does NOT multiply by 100 (value is already a percentage)", () => {
+    expect(formatCoveragePercentage(16.7)).not.toBe("1670.0%")
+  })
+})
+
+describe("formatHardFailureRatePercentage", () => {
+  it("returns em dash for null", () => {
+    expect(formatHardFailureRatePercentage(null)).toBe("—")
+  })
+
+  it("returns em dash for undefined", () => {
+    expect(formatHardFailureRatePercentage(undefined)).toBe("—")
+  })
+
+  it("converts 0.6667 to 66.7%", () => {
+    expect(formatHardFailureRatePercentage(0.6667, 1)).toBe("66.7%")
+  })
+
+  it("converts 1.0 to 100.0%", () => {
+    expect(formatHardFailureRatePercentage(1.0, 1)).toBe("100.0%")
+  })
+
+  it("converts 0.0 to 0.0%", () => {
+    expect(formatHardFailureRatePercentage(0.0, 1)).toBe("0.0%")
+  })
+
+  it("does NOT leave value as-is (multiplies by 100)", () => {
+    expect(formatHardFailureRatePercentage(0.6667, 1)).not.toBe("0.7%")
   })
 })
 
