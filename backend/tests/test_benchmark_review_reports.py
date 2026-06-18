@@ -253,6 +253,53 @@ class TestHardFailureMetrics:
         metrics = build_human_metrics(db_session, run.id)
         assert metrics["hard_failure_review_coverage_percentage"] == pytest.approx(33.3, 0.1)
 
+    def test_all_false_hf_increases_coverage(self, db_session):
+        """All-false (clean) HF reviews must count toward coverage."""
+        run, outputs, *_ = _seed_complex_run(db_session)
+        # Review 3 out of 6 outputs; 2 flagged, 1 all-false
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[0].id,
+            "reviewer_label": "R1", "wrong_speaker": True,
+        })
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[1].id,
+            "reviewer_label": "R2", "missing_critical_meaning": True,
+        })
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[2].id,
+            "reviewer_label": "R3",
+        })
+        db_session.commit()
+        metrics = build_human_metrics(db_session, run.id)
+        # 3 unique outputs reviewed / 6 total = 50.0%
+        assert metrics["hard_failure_review_coverage_percentage"] == pytest.approx(50.0, 0.1)
+
+    def test_all_false_hf_does_not_increase_outputs_with_any(self, db_session):
+        """All-false HF reviews must NOT count as outputs_with_any_hard_failure."""
+        run, outputs, *_ = _seed_complex_run(db_session)
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[0].id,
+            "reviewer_label": "R1", "wrong_speaker": True,
+        })
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[1].id,
+            "reviewer_label": "R2", "missing_critical_meaning": True,
+        })
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[2].id,
+            "reviewer_label": "R3",
+        })
+        create_hard_failure(db_session, run.id, {
+            "benchmark_output_id": outputs[3].id,
+            "reviewer_label": "R4",
+        })
+        db_session.commit()
+        metrics = build_human_metrics(db_session, run.id)
+        # Only outputs[0] and outputs[1] have any flag = 2
+        assert metrics["hard_failures"]["outputs_with_any_hard_failure"] == 2
+        # Coverage counts all 4 unique reviewed = 4/6
+        assert metrics["hard_failure_review_coverage_percentage"] == pytest.approx(66.7, 0.1)
+
     def test_hard_failure_rate_among_reviewed(self, db_session):
         run, outputs, *_ = _seed_complex_run(db_session)
         # Create 3 hf reviews, 2 have flags, 1 has no flags

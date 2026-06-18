@@ -85,15 +85,15 @@ export default function HardFailureForm({
     explanation: explanation || null,
   })
 
-  const isDirty = !(
-    flags.invented_plot_information === (existingFailure?.invented_plot_information ?? false) &&
-    flags.missing_critical_meaning === (existingFailure?.missing_critical_meaning ?? false) &&
-    flags.wrong_speaker === (existingFailure?.wrong_speaker ?? false) &&
-    flags.broken_placeholder === (existingFailure?.broken_placeholder ?? false) &&
-    flags.major_glossary_violation === (existingFailure?.major_glossary_violation ?? false) &&
-    flags.contradiction_with_previous_scene === (existingFailure?.contradiction_with_previous_scene ?? false) &&
-    flags.unjustified_untranslated_japanese === (existingFailure?.unjustified_untranslated_japanese ?? false) &&
-    (explanation || null) === (existingFailure?.explanation ?? null)
+  const isDirty = !existingFailure || !(
+    flags.invented_plot_information === existingFailure.invented_plot_information &&
+    flags.missing_critical_meaning === existingFailure.missing_critical_meaning &&
+    flags.wrong_speaker === existingFailure.wrong_speaker &&
+    flags.broken_placeholder === existingFailure.broken_placeholder &&
+    flags.major_glossary_violation === existingFailure.major_glossary_violation &&
+    flags.contradiction_with_previous_scene === existingFailure.contradiction_with_previous_scene &&
+    flags.unjustified_untranslated_japanese === existingFailure.unjustified_untranslated_japanese &&
+    (explanation || null) === (existingFailure.explanation ?? null)
   )
 
   useEffect(() => {
