@@ -306,3 +306,90 @@ class BenchmarkAutomaticScore(Base):
     output = relationship("BenchmarkOutput", back_populates="score")
     run_id = Column(Integer, ForeignKey("benchmark_runs.id"), nullable=False)
     run = relationship("BenchmarkRun", back_populates="scores")
+
+
+# ---------------------------------------------------------------------------
+# Benchmark human review models (Phase 2B — fully isolated from production tables)
+# ---------------------------------------------------------------------------
+
+
+class BenchmarkItemManualEvaluation(Base):
+    __tablename__ = "benchmark_item_evaluations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    benchmark_output_id = Column(Integer, ForeignKey("benchmark_outputs.id"), nullable=False)
+    reviewer_label = Column(String(100), nullable=False)
+
+    meaning_preservation = Column(Integer, nullable=False)
+    omission_addition_control = Column(Integer, nullable=False)
+    natural_english = Column(Integer, nullable=False)
+    character_voice = Column(Integer, nullable=False)
+    glossary_consistency = Column(Integer, nullable=False)
+    genre_tone_fit = Column(Integer, nullable=False)
+    scene_consistency = Column(Integer, nullable=False)
+    grammar_punctuation = Column(Integer, nullable=False)
+
+    total_score = Column(Integer, nullable=False)
+    reviewer_notes = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("benchmark_output_id", "reviewer_label", name="uq_benchmark_item_eval_reviewer"),
+    )
+
+    output = relationship("BenchmarkOutput")
+
+
+class BenchmarkSceneManualEvaluation(Base):
+    __tablename__ = "benchmark_scene_evaluations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(Integer, ForeignKey("benchmark_runs.id"), nullable=False)
+    scene_id = Column(Integer, ForeignKey("benchmark_scenes.id"), nullable=False)
+    reviewer_label = Column(String(100), nullable=False)
+
+    voice_consistency = Column(Integer, nullable=False)
+    terminology_consistency = Column(Integer, nullable=False)
+    emotional_progression = Column(Integer, nullable=False)
+    relationship_continuity = Column(Integer, nullable=False)
+    narrative_coherence = Column(Integer, nullable=False)
+    genre_tone_consistency = Column(Integer, nullable=False)
+
+    total_score = Column(Integer, nullable=False)
+    reviewer_notes = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("run_id", "scene_id", "reviewer_label", name="uq_benchmark_scene_eval_reviewer"),
+    )
+
+
+class BenchmarkHardFailure(Base):
+    __tablename__ = "benchmark_hard_failures"
+
+    id = Column(Integer, primary_key=True, index=True)
+    benchmark_output_id = Column(Integer, ForeignKey("benchmark_outputs.id"), nullable=False)
+    reviewer_label = Column(String(100), nullable=False)
+
+    invented_plot_information = Column(Boolean, default=False, nullable=False)
+    missing_critical_meaning = Column(Boolean, default=False, nullable=False)
+    wrong_speaker = Column(Boolean, default=False, nullable=False)
+    broken_placeholder = Column(Boolean, default=False, nullable=False)
+    major_glossary_violation = Column(Boolean, default=False, nullable=False)
+    contradiction_with_previous_scene = Column(Boolean, default=False, nullable=False)
+    unjustified_untranslated_japanese = Column(Boolean, default=False, nullable=False)
+
+    explanation = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("benchmark_output_id", "reviewer_label", name="uq_benchmark_hard_failure_reviewer"),
+    )
+
+    output = relationship("BenchmarkOutput")
