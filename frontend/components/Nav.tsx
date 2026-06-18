@@ -7,6 +7,7 @@ const links = [
   { href: "/", label: "Upload" },
   { href: "/progress", label: "Progress" },
   { href: "/export", label: "Export" },
+  { href: "/benchmark", label: "Benchmark" },
 ]
 
 export default function Nav() {
