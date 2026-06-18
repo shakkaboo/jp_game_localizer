@@ -12,7 +12,6 @@ export default function ProgressPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [translatingId, setTranslatingId] = useState<number | null>(null)
-  const [projectId, setProjectId] = useState<number | null>(null)
 
   const loadChunks = useCallback(async (pid: number) => {
     try {
@@ -26,21 +25,35 @@ export default function ProgressPage() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
     const stored = localStorage.getItem("project_id")
     if (!stored) {
       router.replace("/")
       return
     }
     const pid = Number(stored)
-    setProjectId(pid)
-    loadChunks(pid)
-  }, [router, loadChunks])
+    const load = async () => {
+      try {
+        const data = await listChunks(pid)
+        if (!cancelled) setChunks(data)
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load chunks")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [router])
 
   const handleTranslate = async (chunkId: number) => {
+    const stored = localStorage.getItem("project_id")
+    if (!stored) return
+    const pid = Number(stored)
     setTranslatingId(chunkId)
     try {
       await translateChunk(chunkId)
-      if (projectId) await loadChunks(projectId)
+      await loadChunks(pid)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Translation failed")
     } finally {
@@ -56,13 +69,19 @@ export default function ProgressPage() {
     return <StateMessage>Loading chunks...</StateMessage>
   }
 
+  const handleRetry = () => {
+    const stored = localStorage.getItem("project_id")
+    if (!stored) return
+    loadChunks(Number(stored))
+  }
+
   if (error) {
     return (
       <StateMessage>
         <p className="text-red-600">{error}</p>
         <button
           type="button"
-          onClick={() => projectId && loadChunks(projectId)}
+          onClick={handleRetry}
           className="mt-3 rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white"
         >
           Retry
@@ -73,6 +92,7 @@ export default function ProgressPage() {
 
   const total = chunks.length
   const translated = chunks.filter((c) => c.status === "translated").length
+  const projectId = chunks.length > 0 ? (chunks[0].project_id ?? null) : null
   const pending = total - translated
   const pct = total > 0 ? Math.round((translated / total) * 100) : 0
 

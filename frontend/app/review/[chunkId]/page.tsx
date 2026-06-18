@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import ReviewTable from "@/components/ReviewTable"
 import StatusBadge from "@/components/StatusBadge"
@@ -19,27 +19,29 @@ export default function ReviewPage() {
   const [saving, setSaving] = useState<number | null>(null)
   const [memoryOpen, setMemoryOpen] = useState(false)
 
-  const loadDetail = useCallback(async () => {
-    try {
-      const data = await getChunkDetail(chunkId)
-      setDetail(data)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load")
-    } finally {
-      setLoading(false)
-    }
-  }, [chunkId])
-
   useEffect(() => {
-    loadDetail()
-  }, [loadDetail])
+    let cancelled = false
+    const load = async () => {
+      try {
+        const data = await getChunkDetail(chunkId)
+        if (!cancelled) setDetail(data)
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [chunkId])
 
   const handleTranslate = async () => {
     setTranslating(true)
     setError(null)
     try {
       await translateChunk(chunkId)
-      await loadDetail()
+      const data = await getChunkDetail(chunkId)
+      setDetail(data)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Translation failed")
     } finally {
@@ -72,7 +74,18 @@ export default function ReviewPage() {
         <p className="text-red-600">{error}</p>
         <button
           type="button"
-          onClick={loadDetail}
+          onClick={async () => {
+            setLoading(true)
+            setError(null)
+            try {
+              const data = await getChunkDetail(chunkId)
+              setDetail(data)
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "Failed to load")
+            } finally {
+              setLoading(false)
+            }
+          }}
           className="mt-3 rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white"
         >
           Retry
@@ -152,7 +165,9 @@ export default function ReviewPage() {
                   </h4>
                   <pre className="max-h-48 overflow-auto rounded-md bg-zinc-50 p-3 text-xs text-zinc-600">
                     {JSON.stringify(
-                      JSON.parse(detail.previous_memory_json),
+                      typeof detail.previous_memory_json === "string"
+                        ? JSON.parse(detail.previous_memory_json)
+                        : detail.previous_memory_json,
                       null,
                       2
                     )}
@@ -166,7 +181,9 @@ export default function ReviewPage() {
                   </h4>
                   <pre className="max-h-48 overflow-auto rounded-md bg-zinc-50 p-3 text-xs text-zinc-600">
                     {JSON.stringify(
-                      JSON.parse(detail.chunk_memory_json),
+                      typeof detail.chunk_memory_json === "string"
+                        ? JSON.parse(detail.chunk_memory_json)
+                        : detail.chunk_memory_json,
                       null,
                       2
                     )}

@@ -115,8 +115,10 @@ export default function UploadPage() {
 
           <p>
             <span className="text-zinc-500">Project:</span>{" "}
-            {contextResult.project?.title || "Untitled"}
-            {contextResult.project?.genre && (
+            {typeof contextResult.project?.title === "string"
+              ? contextResult.project.title
+              : "Untitled"}
+            {typeof contextResult.project?.genre === "string" && (
               <>
                 {" · "}
                 <span className="text-zinc-500">Genre:</span>{" "}

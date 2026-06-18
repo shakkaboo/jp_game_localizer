@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { listChunks, getExportUrl, fetchExportData } from "@/lib/api"
 import type { ChunkItem } from "@/types"
@@ -9,35 +9,36 @@ export default function ExportPage() {
   const router = useRouter()
   const [chunks, setChunks] = useState<ChunkItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [projectId, setProjectId] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
 
-  const loadChunks = useCallback(async (pid: number) => {
-    try {
-      const data = await listChunks(pid)
-      setChunks(data)
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
   useEffect(() => {
+    let cancelled = false
     const stored = localStorage.getItem("project_id")
     if (!stored) {
       router.replace("/")
       return
     }
     const pid = Number(stored)
-    setProjectId(pid)
-    loadChunks(pid)
-  }, [router, loadChunks])
+    const load = async () => {
+      try {
+        const data = await listChunks(pid)
+        if (!cancelled) setChunks(data)
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [router])
 
   const handleCopyJson = async () => {
-    if (!projectId) return
+    const stored = localStorage.getItem("project_id")
+    if (!stored) return
+    const pid = Number(stored)
     try {
-      const data = await fetchExportData(projectId, "json")
+      const data = await fetchExportData(pid, "json")
       const text = typeof data === "string" ? data : JSON.stringify(data, null, 2)
       await navigator.clipboard.writeText(text)
       setCopied(true)
@@ -53,6 +54,7 @@ export default function ExportPage() {
 
   const total = chunks.length
   const translated = chunks.filter((c) => c.status === "translated").length
+  const projectId = chunks.length > 0 ? (chunks[0].project_id ?? null) : null
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
