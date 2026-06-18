@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/export", tags=["export"])
 @router.get("/{project_id}")
 async def export_localized_script(
     project_id: int,
-    format: str = Query("csv", pattern="^(csv|json)$"),
+    format: str = Query("csv", pattern="^(csv|json|pdf)$"),
     db: Session = Depends(get_db),
 ):
     project = db.query(Project).filter(Project.id == project_id).first()
@@ -20,6 +20,13 @@ async def export_localized_script(
         raise HTTPException(404, "Project not found")
 
     content = ExportService.export(project_id, format, db)
+
+    if format == "pdf":
+        return Response(
+            content=content,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="localized_script_{project_id}.pdf"'},
+        )
 
     media_type = "application/json" if format == "json" else "text/csv"
     filename = f"localized_script_{project_id}.{format}"

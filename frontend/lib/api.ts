@@ -78,7 +78,7 @@ export async function patchTranslation(
   })
 }
 
-export function getExportUrl(projectId: number, format: "csv" | "json") {
+export function getExportUrl(projectId: number, format: string) {
   return `${BASE}/export/${projectId}?format=${format}`
 }
 
@@ -91,4 +91,22 @@ export async function fetchExportData(
   }
   const res = await fetch(`${BASE}/export/${projectId}?format=csv`)
   return res.text()
+}
+
+export async function fetchExportBlob(
+  projectId: number,
+  format: string,
+): Promise<Blob> {
+  const res = await fetch(`${BASE}/export/${projectId}?format=${format}`)
+  if (!res.ok) {
+    let detail = `Request failed: ${res.status}`
+    try {
+      const body = await res.json()
+      if (body.detail) detail = body.detail
+    } catch {
+      // ignore
+    }
+    throw new Error(detail)
+  }
+  return res.blob()
 }

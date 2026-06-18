@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { listChunks, fetchExportData } from "@/lib/api"
+import { listChunks, fetchExportData, fetchExportBlob } from "@/lib/api"
 import type { ChunkItem } from "@/types"
 
 export default function ExportPage() {
@@ -34,15 +34,11 @@ export default function ExportPage() {
     return () => { cancelled = true }
   }, [router, stored])
 
-  const handleDownload = useCallback(async (format: "csv" | "json") => {
+  const handleDownload = useCallback(async (format: string) => {
     const pid = stored ? Number(stored) : null
     if (!pid) return
     try {
-      const data = await fetchExportData(pid, format)
-      const text = typeof data === "string" ? data : JSON.stringify(data, null, 2)
-      const blob = new Blob([text], {
-        type: format === "json" ? "application/json" : "text/csv",
-      })
+      const blob = await fetchExportBlob(pid, format)
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
@@ -170,6 +166,27 @@ export default function ExportPage() {
               />
             </svg>
             Download JSON
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDownload("pdf")}
+            className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-6 py-3 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+              />
+            </svg>
+            Download PDF
           </button>
           <button
             type="button"
