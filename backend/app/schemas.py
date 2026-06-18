@@ -187,6 +187,7 @@ class ChunkRead(BaseModel):
 
 class ChunkListRead(BaseModel):
     id: int
+    project_id: int
     chunk_number: int
     chunk_title: Optional[str] = None
     scene_hint: Optional[str] = None

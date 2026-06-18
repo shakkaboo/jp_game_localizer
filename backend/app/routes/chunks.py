@@ -164,6 +164,7 @@ async def list_chunks(
         result.append(
             ChunkListRead(
                 id=c.id,
+                project_id=c.project_id,
                 chunk_number=c.chunk_number,
                 chunk_title=c.chunk_title,
                 scene_hint=c.scene_hint,
