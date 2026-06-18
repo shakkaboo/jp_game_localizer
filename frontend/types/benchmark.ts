@@ -356,3 +356,40 @@ export interface FlattenedReviewItem {
   itemEvaluation: BenchmarkItemEvaluationRead | null
   hardFailure: BenchmarkHardFailureRead | null
 }
+
+export interface BenchmarkCompareEntry {
+  run_id: number
+  mode: string
+  status: string
+  model: string
+  provider: string
+  prompt_version: string
+  memory_gap: boolean
+  automatic_metrics: BenchmarkMetricsSummary | null
+  human_metrics: BenchmarkHumanMetricsSummary | null
+  item_review_coverage_percentage: number
+  scene_review_coverage_percentage: number
+  hard_failure_review_coverage_percentage: number
+  coverage_note: string | null
+}
+
+export interface BenchmarkComparisonReport {
+  dataset_id: number
+  dataset_name: string
+  dataset_version: string
+  runs: BenchmarkCompareEntry[]
+  warnings: string[]
+  note: string
+}
+
+export interface ComparisonExplicitParams {
+  type: "explicit"
+  plain_run_id: number
+  context_run_id: number
+  context_memory_run_id: number
+}
+
+export interface ComparisonLatestParams {
+  type: "latest"
+  dataset_id: number
+}

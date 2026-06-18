@@ -1,4 +1,5 @@
 import type {
+  BenchmarkComparisonReport,
   BenchmarkDatasetListItem,
   BenchmarkDatasetRead,
   BenchmarkHardFailureCreate,
@@ -222,5 +223,30 @@ export async function getHumanMetrics(
 ): Promise<BenchmarkHumanMetricsSummary> {
   return request<BenchmarkHumanMetricsSummary>(
     `/benchmark/runs/${runId}/human-metrics`
+  )
+}
+
+export async function compareExplicitRuns(
+  plainRunId: number,
+  contextRunId: number,
+  contextMemoryRunId: number
+): Promise<BenchmarkComparisonReport> {
+  const params = new URLSearchParams()
+  params.set("plain_run_id", String(plainRunId))
+  params.set("context_run_id", String(contextRunId))
+  params.set("context_memory_run_id", String(contextMemoryRunId))
+  return request<BenchmarkComparisonReport>(
+    `/benchmark/compare?${params.toString()}`
+  )
+}
+
+export async function compareLatestCompleted(
+  datasetId: number
+): Promise<BenchmarkComparisonReport> {
+  const params = new URLSearchParams()
+  params.set("dataset_id", String(datasetId))
+  params.set("selection", "latest_completed")
+  return request<BenchmarkComparisonReport>(
+    `/benchmark/compare?${params.toString()}`
   )
 }
