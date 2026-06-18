@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getRun, getRunMetrics } from "@/lib/benchmark-api"
-import type { BenchmarkRunDetailRead, BenchmarkMetricsSummary } from "@/types/benchmark"
+import { getRun, getRunMetrics, getHumanMetrics } from "@/lib/benchmark-api"
+import type { BenchmarkRunDetailRead, BenchmarkMetricsSummary, BenchmarkHumanMetricsSummary } from "@/types/benchmark"
 import ModeBadge from "@/components/benchmark/ModeBadge"
 import StatusBadge from "@/components/benchmark/StatusBadge"
 import WarningBanner from "@/components/benchmark/WarningBanner"
@@ -18,6 +18,7 @@ export default function RunDetailPage() {
 
   const [run, setRun] = useState<BenchmarkRunDetailRead | null>(null)
   const [metrics, setMetrics] = useState<BenchmarkMetricsSummary | null>(null)
+  const [humanMetrics, setHumanMetrics] = useState<BenchmarkHumanMetricsSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAllScenes, setShowAllScenes] = useState(false)
@@ -26,12 +27,14 @@ export default function RunDetailPage() {
     setLoading(true)
     setError(null)
     try {
-      const [runData, metricsData] = await Promise.all([
+      const [runData, metricsData, hmData] = await Promise.all([
         getRun(runId),
         getRunMetrics(runId),
+        getHumanMetrics(runId).catch(() => null),
       ])
       setRun(runData)
       setMetrics(metricsData)
+      setHumanMetrics(hmData)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load run")
     } finally {
@@ -45,13 +48,15 @@ export default function RunDetailPage() {
       setLoading(true)
       setError(null)
       try {
-        const [runData, metricsData] = await Promise.all([
+        const [runData, metricsData, hmData] = await Promise.all([
           getRun(runId),
           getRunMetrics(runId),
+          getHumanMetrics(runId).catch(() => null),
         ])
         if (!cancelled) {
           setRun(runData)
           setMetrics(metricsData)
+          setHumanMetrics(hmData)
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load run")
@@ -91,6 +96,13 @@ export default function RunDetailPage() {
             </div>
             <p className="mt-1 text-sm text-zinc-500">{run.dataset_id}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => router.push(`/benchmark/runs/${runId}/review`)}
+            className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+          >
+            Review this run
+          </button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -133,6 +145,29 @@ export default function RunDetailPage() {
         {run.error_message && (
           <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
             {run.error_message}
+          </div>
+        )}
+
+        {humanMetrics && (
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
+              <p className="text-xs text-zinc-500">Item Review Coverage</p>
+              <p className="mt-0.5 text-sm font-semibold text-zinc-800">
+                {(humanMetrics.item_review_coverage_percentage * 100).toFixed(1)}%
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
+              <p className="text-xs text-zinc-500">Scene Review Coverage</p>
+              <p className="mt-0.5 text-sm font-semibold text-zinc-800">
+                {(humanMetrics.scene_review_coverage_percentage * 100).toFixed(1)}%
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
+              <p className="text-xs text-zinc-500">Hard-Failure Review Coverage</p>
+              <p className="mt-0.5 text-sm font-semibold text-zinc-800">
+                {(humanMetrics.hard_failure_review_coverage_percentage * 100).toFixed(1)}%
+              </p>
+            </div>
           </div>
         )}
       </div>

@@ -169,3 +169,190 @@ export type OutputStatus =
   | "completed"
   | "failed"
   | "missing"
+
+export interface BenchmarkItemEvaluationCreate {
+  benchmark_output_id: number
+  reviewer_label: string
+  meaning_preservation: number
+  omission_addition_control: number
+  natural_english: number
+  character_voice: number
+  glossary_consistency: number
+  genre_tone_fit: number
+  scene_consistency: number
+  grammar_punctuation: number
+  reviewer_notes: string | null
+}
+
+export interface BenchmarkItemEvaluationUpdate {
+  meaning_preservation: number
+  omission_addition_control: number
+  natural_english: number
+  character_voice: number
+  glossary_consistency: number
+  genre_tone_fit: number
+  scene_consistency: number
+  grammar_punctuation: number
+  reviewer_notes: string | null
+}
+
+export interface BenchmarkItemEvaluationRead {
+  id: number
+  benchmark_output_id: number
+  reviewer_label: string
+  meaning_preservation: number
+  omission_addition_control: number
+  natural_english: number
+  character_voice: number
+  glossary_consistency: number
+  genre_tone_fit: number
+  scene_consistency: number
+  grammar_punctuation: number
+  total_score: number
+  reviewer_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BenchmarkSceneEvaluationCreate {
+  scene_id: number
+  reviewer_label: string
+  voice_consistency: number
+  terminology_consistency: number
+  emotional_progression: number
+  relationship_continuity: number
+  narrative_coherence: number
+  genre_tone_consistency: number
+  reviewer_notes: string | null
+}
+
+export interface BenchmarkSceneEvaluationUpdate {
+  voice_consistency: number
+  terminology_consistency: number
+  emotional_progression: number
+  relationship_continuity: number
+  narrative_coherence: number
+  genre_tone_consistency: number
+  reviewer_notes: string | null
+}
+
+export interface BenchmarkSceneEvaluationRead {
+  id: number
+  run_id: number
+  scene_id: number
+  reviewer_label: string
+  voice_consistency: number
+  terminology_consistency: number
+  emotional_progression: number
+  relationship_continuity: number
+  narrative_coherence: number
+  genre_tone_consistency: number
+  total_score: number
+  reviewer_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BenchmarkHardFailureCreate {
+  benchmark_output_id: number
+  reviewer_label: string
+  invented_plot_information: boolean
+  missing_critical_meaning: boolean
+  wrong_speaker: boolean
+  broken_placeholder: boolean
+  major_glossary_violation: boolean
+  contradiction_with_previous_scene: boolean
+  unjustified_untranslated_japanese: boolean
+  explanation: string | null
+}
+
+export interface BenchmarkHardFailureUpdate {
+  invented_plot_information: boolean
+  missing_critical_meaning: boolean
+  wrong_speaker: boolean
+  broken_placeholder: boolean
+  major_glossary_violation: boolean
+  contradiction_with_previous_scene: boolean
+  unjustified_untranslated_japanese: boolean
+  explanation: string | null
+}
+
+export interface BenchmarkHardFailureRead {
+  id: number
+  benchmark_output_id: number
+  reviewer_label: string
+  invented_plot_information: boolean
+  missing_critical_meaning: boolean
+  wrong_speaker: boolean
+  broken_placeholder: boolean
+  major_glossary_violation: boolean
+  contradiction_with_previous_scene: boolean
+  unjustified_untranslated_japanese: boolean
+  explanation: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BenchmarkCriterionStats {
+  mean: number | null
+  std: number | null
+}
+
+export interface BenchmarkHumanItemScoreAggregate {
+  item_evaluation_count: number
+  unique_reviewed_output_count: number
+  average_reviewers_per_reviewed_output: number
+  average_total: number | null
+  average_per_criterion: Record<string, BenchmarkCriterionStats | null>
+  by_scene: Record<string, Record<string, unknown> | null>
+  by_genre: Record<string, Record<string, unknown> | null>
+  by_content_type: Record<string, Record<string, unknown> | null>
+  requires_previous_memory: Record<string, unknown> | null
+  no_previous_memory: Record<string, unknown> | null
+  by_reviewer: Record<string, Record<string, unknown> | null>
+}
+
+export interface BenchmarkHumanSceneScoreAggregate {
+  scene_evaluation_count: number
+  unique_reviewed_scenes: number
+  scene_review_coverage_percentage: number
+  average_total: number | null
+  average_per_criterion: Record<string, BenchmarkCriterionStats | null>
+  by_reviewer: Record<string, Record<string, unknown> | null>
+}
+
+export interface BenchmarkHardFailureAggregate {
+  hard_failure_review_count: number
+  unique_outputs_reviewed_for_hard_failures: number
+  outputs_with_any_hard_failure: number
+  hard_failure_rate_among_reviewed_outputs: number | null
+  count_per_flag: Record<string, number>
+  by_scene: Record<string, number>
+  by_genre: Record<string, number>
+  by_content_type: Record<string, number>
+  requires_previous_memory: number
+  no_previous_memory: number
+  by_reviewer: Record<string, number>
+}
+
+export interface BenchmarkHumanMetricsSummary {
+  run_id: number
+  mode: string
+  model: string
+  provider: string
+  prompt_version: string
+  item_review_coverage_percentage: number
+  scene_review_coverage_percentage: number
+  hard_failure_review_coverage_percentage: number
+  item_scores: BenchmarkHumanItemScoreAggregate
+  scene_scores: BenchmarkHumanSceneScoreAggregate
+  hard_failures: BenchmarkHardFailureAggregate
+}
+
+export interface FlattenedReviewItem {
+  output: BenchmarkOutputRead
+  item: BenchmarkItemRead | null
+  scene: BenchmarkSceneRead
+  itemEvaluation: BenchmarkItemEvaluationRead | null
+  hardFailure: BenchmarkHardFailureRead | null
+}

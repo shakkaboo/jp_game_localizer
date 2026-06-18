@@ -1,12 +1,22 @@
 import type {
   BenchmarkDatasetListItem,
   BenchmarkDatasetRead,
+  BenchmarkHardFailureCreate,
+  BenchmarkHardFailureRead,
+  BenchmarkHardFailureUpdate,
+  BenchmarkHumanMetricsSummary,
+  BenchmarkItemEvaluationCreate,
+  BenchmarkItemEvaluationRead,
+  BenchmarkItemEvaluationUpdate,
   BenchmarkMetricsSummary,
   BenchmarkOutputWithItemRead,
   BenchmarkRunDetailRead,
   BenchmarkRunRead,
   BenchmarkRunSceneOutput,
   BenchmarkRunStartResponse,
+  BenchmarkSceneEvaluationCreate,
+  BenchmarkSceneEvaluationRead,
+  BenchmarkSceneEvaluationUpdate,
 } from "@/types/benchmark"
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000"
@@ -89,4 +99,128 @@ export async function getRunMetrics(
   runId: number
 ): Promise<BenchmarkMetricsSummary> {
   return request<BenchmarkMetricsSummary>(`/benchmark/runs/${runId}/metrics`)
+}
+
+export async function createItemEvaluation(
+  runId: number,
+  body: BenchmarkItemEvaluationCreate
+): Promise<BenchmarkItemEvaluationRead> {
+  return request<BenchmarkItemEvaluationRead>(
+    `/benchmark/runs/${runId}/evaluations/items`,
+    { method: "POST", body: JSON.stringify(body) }
+  )
+}
+
+export async function updateItemEvaluation(
+  evaluationId: number,
+  body: BenchmarkItemEvaluationUpdate
+): Promise<BenchmarkItemEvaluationRead> {
+  return request<BenchmarkItemEvaluationRead>(
+    `/benchmark/evaluations/items/${evaluationId}`,
+    { method: "PUT", body: JSON.stringify(body) }
+  )
+}
+
+export async function getItemEvaluation(
+  evaluationId: number
+): Promise<BenchmarkItemEvaluationRead> {
+  return request<BenchmarkItemEvaluationRead>(
+    `/benchmark/evaluations/items/${evaluationId}`
+  )
+}
+
+export async function listItemEvaluations(
+  runId: number,
+  outputId?: number
+): Promise<BenchmarkItemEvaluationRead[]> {
+  const params = new URLSearchParams()
+  if (outputId !== undefined) params.set("benchmark_output_id", String(outputId))
+  const qs = params.toString()
+  return request<BenchmarkItemEvaluationRead[]>(
+    `/benchmark/runs/${runId}/evaluations/items${qs ? `?${qs}` : ""}`
+  )
+}
+
+export async function createSceneEvaluation(
+  runId: number,
+  body: BenchmarkSceneEvaluationCreate
+): Promise<BenchmarkSceneEvaluationRead> {
+  return request<BenchmarkSceneEvaluationRead>(
+    `/benchmark/runs/${runId}/evaluations/scenes`,
+    { method: "POST", body: JSON.stringify(body) }
+  )
+}
+
+export async function updateSceneEvaluation(
+  evaluationId: number,
+  body: BenchmarkSceneEvaluationUpdate
+): Promise<BenchmarkSceneEvaluationRead> {
+  return request<BenchmarkSceneEvaluationRead>(
+    `/benchmark/evaluations/scenes/${evaluationId}`,
+    { method: "PUT", body: JSON.stringify(body) }
+  )
+}
+
+export async function getSceneEvaluation(
+  evaluationId: number
+): Promise<BenchmarkSceneEvaluationRead> {
+  return request<BenchmarkSceneEvaluationRead>(
+    `/benchmark/evaluations/scenes/${evaluationId}`
+  )
+}
+
+export async function listSceneEvaluations(
+  runId: number
+): Promise<BenchmarkSceneEvaluationRead[]> {
+  return request<BenchmarkSceneEvaluationRead[]>(
+    `/benchmark/runs/${runId}/evaluations/scenes`
+  )
+}
+
+export async function createHardFailure(
+  runId: number,
+  body: BenchmarkHardFailureCreate
+): Promise<BenchmarkHardFailureRead> {
+  return request<BenchmarkHardFailureRead>(
+    `/benchmark/runs/${runId}/hard-failures`,
+    { method: "POST", body: JSON.stringify(body) }
+  )
+}
+
+export async function updateHardFailure(
+  failureId: number,
+  body: BenchmarkHardFailureUpdate
+): Promise<BenchmarkHardFailureRead> {
+  return request<BenchmarkHardFailureRead>(
+    `/benchmark/hard-failures/${failureId}`,
+    { method: "PUT", body: JSON.stringify(body) }
+  )
+}
+
+export async function getHardFailure(
+  failureId: number
+): Promise<BenchmarkHardFailureRead> {
+  return request<BenchmarkHardFailureRead>(
+    `/benchmark/hard-failures/${failureId}`
+  )
+}
+
+export async function listHardFailures(
+  runId: number,
+  outputId?: number
+): Promise<BenchmarkHardFailureRead[]> {
+  const params = new URLSearchParams()
+  if (outputId !== undefined) params.set("benchmark_output_id", String(outputId))
+  const qs = params.toString()
+  return request<BenchmarkHardFailureRead[]>(
+    `/benchmark/runs/${runId}/hard-failures${qs ? `?${qs}` : ""}`
+  )
+}
+
+export async function getHumanMetrics(
+  runId: number
+): Promise<BenchmarkHumanMetricsSummary> {
+  return request<BenchmarkHumanMetricsSummary>(
+    `/benchmark/runs/${runId}/human-metrics`
+  )
 }
